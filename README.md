@@ -1,203 +1,115 @@
 
-# Shubham Sahare - DevOps Engineer Portfolio
+# Shubham Sahare - Personal Portfolio & Blog
 
-![Project Preview](https://via.placeholder.com/1200x630/0a0a0a/FFFFFF?text=Shubham+Sahare+DevOps+Expert)
-
-## Overview
-
-A stunning, interactive personal portfolio website for Shubham Sahare, a DevOps Engineer and Cloud Infrastructure Specialist. The website features a modern UI with particle effects, smooth animations, and a comprehensive showcase of DevOps expertise, projects, and professional experience.
-
-## Live Demo
-
-[View Live Demo](https://yourdomain.com) (Replace with your actual deployment URL)
+A modern, responsive personal website for Shubham Sahare, a DevOps Engineer. This portfolio website showcases skills, experience, blog posts, and a video resume.
 
 ## Features
 
-- **Interactive Design**: Particle effects, smooth scrolling, and animations
-- **Responsive Layout**: Optimized for all device sizes from mobile to desktop
-- **Video Background**: With mute/unmute functionality
-- **DevOps Focus**: Sections highlighting infrastructure projects, CI/CD pipelines, and cloud architecture
-- **Professional Timeline**: Interactive work experience timeline
-- **Blog Section**: Showcase for technical articles and insights
-- **Contact Form**: Integrated contact form for inquiries
-- **Admin Dashboard**: Secure admin area for content management
+- **Responsive Design**: Works on all devices from mobile to desktop
+- **Particle Background**: Interactive particle animation for visual appeal
+- **Blog System**: Complete blog with individual post pages
+- **Video Resume**: Embedded video player for personal introductions
+- **Admin Dashboard**: Secure admin panel for content management
+- **Modern UI**: Built with React, Tailwind CSS, and Shadcn UI components
 
-## Tech Stack
+## Admin Dashboard
 
-- **Frontend**: React, TypeScript, Vite
-- **Styling**: Tailwind CSS, CSS animations
-- **UI Components**: shadcn/ui
-- **State Management**: React Query
-- **Animations**: Particle effects via tsparticles
-- **Routing**: React Router
+The admin dashboard allows managing all content on the website:
 
-## Getting Started
+### Accessing the Admin Dashboard
 
-### Prerequisites
+1. Navigate to `/admin` in the website URL
+2. Login with these credentials:
+   - Email: `admin@example.com`
+   - Password: `password`
 
-- Node.js (v18.0.0 or later)
-- npm or yarn
+### Managing Content
 
-### Installation
+The admin dashboard provides tools to:
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/shubham-sahare-portfolio.git
-   cd shubham-sahare-portfolio
-   ```
+- **Update Profile**: Edit personal information, skills, and bio
+- **Manage Blog Posts**: Create, edit, publish, and delete blog articles
+- **Video Resume**: Add, update, or remove videos from different platforms (YouTube/Vimeo)
+- **Website Settings**: Modify SEO settings, site title, and other configurations
+- **Security**: Change admin credentials
 
+## Development
+
+This project is built with:
+
+- React
+- TypeScript
+- Tailwind CSS
+- Shadcn UI Components
+- React Router
+- React Query
+
+### Getting Started
+
+1. Clone this repository
 2. Install dependencies:
-   ```bash
+   ```
    npm install
-   # or
-   yarn install
    ```
-
 3. Start the development server:
-   ```bash
+   ```
    npm run dev
-   # or
-   yarn dev
    ```
+4. Open your browser and navigate to `http://localhost:5173`
 
-4. Open your browser and navigate to:
-   ```
-   http://localhost:5173
-   ```
+### Project Structure
 
-## Admin Dashboard Usage
-
-The admin dashboard provides a secure interface to manage your website content.
-
-### Accessing the Dashboard
-
-1. Navigate to `/admin` in your browser
-2. Login with your credentials:
-   - Default username: admin@example.com
-   - Default password: admin123
-   (Be sure to change these in a production environment!)
-
-### Dashboard Features
-
-The admin dashboard allows you to:
-
-- **Update Profile Information**: Change your name, title, bio, and profile picture
-- **Manage Skills**: Add, edit, or remove skills from your profile
-- **Portfolio Management**: Add new projects or edit existing ones
-- **Experience Timeline**: Update your work history
-- **Blog Management**: Create, edit, and publish blog posts
-- **Message Center**: View and respond to messages sent through the contact form
-
-### Content Management Tips
-
-- Images should be optimized before upload (recommended max size: 1MB)
-- For best performance, use WebP format for images
-- When adding new projects, include relevant tags for proper filtering
-- Blog posts support Markdown formatting for rich content
-
-## Customization
-
-### Profile Information
-
-Edit the data files in `src/data/` to update your personal information:
-
-- `profile.ts`: Basic information and bio
-- `skills.ts`: Your technical skills
-- `projects.ts`: Portfolio projects
-- `experience.ts`: Work experience
-- `blog.ts`: Blog posts
-
-### Styling and Themes
-
-The color scheme and design elements can be customized in:
-
-- `tailwind.config.ts`: Update colors and theme variables
-- `src/index.css`: Modify global styles
-
-### Adding Custom Sections
-
-To add new sections to the website:
-
-1. Create a new component in `src/components/`
-2. Add the component to the main layout in `src/pages/Index.tsx`
-3. Update the navigation menu to include the new section
+- `/src`: Source files
+  - `/components`: Reusable UI components
+  - `/pages`: Main page components
+  - `/hooks`: Custom React hooks
+  - `/lib`: Utility functions
+  - `/components/ui`: Shadcn UI components
 
 ## Deployment
 
-### Build for Production
+### Building for Production
 
-```bash
+```
 npm run build
-# or
-yarn build
 ```
 
-This will create a `dist` folder with the optimized production build.
+This will generate optimized production files in the `/dist` directory.
 
-### Deployment Options
+### GitHub Deployment
 
-- **Vercel**: Connect your GitHub repository for automatic deployments
-- **Netlify**: Set up continuous deployment from GitHub
-- **GitHub Pages**: Deploy static build directly
-- **AWS S3/CloudFront**: For scalable static hosting with CDN
+To deploy this project to GitHub:
 
-## Uploading to GitHub
-
-### Setting Up a New Repository
-
-1. Create a new repository on GitHub
-2. Initialize Git in your project (if not already done):
-   ```bash
+1. Create a new GitHub repository
+2. Initialize Git in your project folder (if not already done):
+   ```
    git init
    ```
-
-3. Add your remote repository:
-   ```bash
-   git remote add origin https://github.com/your-username/your-repo-name.git
+3. Add your GitHub repository as a remote:
    ```
-
-4. Add, commit, and push your files:
-   ```bash
+   git remote add origin https://github.com/yourusername/repository-name.git
+   ```
+4. Add all files:
+   ```
    git add .
-   git commit -m "Initial commit: Portfolio website"
+   ```
+5. Commit changes:
+   ```
+   git commit -m "Initial commit"
+   ```
+6. Push to GitHub:
+   ```
    git push -u origin main
    ```
 
-### GitHub Pages Deployment
+## Customization
 
-To deploy to GitHub Pages:
+- **Particles**: Edit settings in `ParticleBackground.tsx`
+- **Colors**: Modify theme colors in `tailwind.config.js`
+- **Content**: Update mock data in respective components or connect to a backend
 
-1. In your repository settings, enable GitHub Pages
-2. Set the source to the `gh-pages` branch
-3. Add a custom domain if desired
-4. Install the gh-pages package:
-   ```bash
-   npm install --save-dev gh-pages
-   ```
+## Credits
 
-5. Add deployment scripts to package.json:
-   ```json
-   "scripts": {
-     "predeploy": "npm run build",
-     "deploy": "gh-pages -d dist"
-   }
-   ```
-
-6. Deploy your site:
-   ```bash
-   npm run deploy
-   ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-Shubham Sahare - [shubham.sahare@example.com](mailto:shubham.sahare@example.com)
-
-Project Link: [https://github.com/your-username/shubham-sahare-portfolio](https://github.com/your-username/shubham-sahare-portfolio)
+- UI Components: [Shadcn UI](https://ui.shadcn.com/)
+- Icons: [Lucide React](https://lucide.dev/)
+- Particles: [tsParticles](https://particles.js.org/)
