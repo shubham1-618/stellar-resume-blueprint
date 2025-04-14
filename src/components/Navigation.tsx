@@ -18,15 +18,20 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <div className="w-full">
+    <div className="w-full relative z-30">
       {/* Mobile menu toggle */}
       <div className="flex md:hidden justify-between items-center p-4 bg-background/80 backdrop-blur-sm">
         <Link to="/" className="text-xl font-bold">Shubham Sahare</Link>
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          onClick={toggleMenu}
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="z-50"
         >
           {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

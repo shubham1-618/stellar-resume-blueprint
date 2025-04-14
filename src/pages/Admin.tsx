@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Briefcase, FileText, Image, Settings, User, BookOpen, Globe, Video } from "lucide-react";
+import { Briefcase, FileText, Image, Settings, User, BookOpen, Globe, Video, Users } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -31,6 +30,18 @@ const Admin = () => {
     { id: 2, title: "Cloud Infrastructure Skills", platform: "Vimeo", embedUrl: "https://player.vimeo.com/video/76979871" },
     { id: 3, title: "Kubernetes & Container Orchestration", platform: "YouTube", embedUrl: "https://www.youtube.com/embed/PH-2FfFD2PU" },
   ]);
+
+  // User management states
+  const [users, setUsers] = useState([
+    { id: 1, name: "Admin User", email: "admin@example.com", role: "Admin" },
+    { id: 2, name: "Content Manager", email: "manager@example.com", role: "Editor" },
+  ]);
+
+  // New user form states
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+  const [newUserRole, setNewUserRole] = useState("Editor");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +102,47 @@ const Admin = () => {
     toast({
       title: "Video added",
       description: "A new video has been added. Please update its details.",
+    });
+  };
+
+  // User management functions
+  const handleAddUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newUserName || !newUserEmail || !newUserPassword) {
+      toast({
+        title: "Error",
+        description: "Please fill in all user fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const newId = Math.max(...users.map(u => u.id), 0) + 1;
+    setUsers([...users, {
+      id: newId,
+      name: newUserName,
+      email: newUserEmail,
+      role: newUserRole
+    }]);
+    
+    // Reset form
+    setNewUserName("");
+    setNewUserEmail("");
+    setNewUserPassword("");
+    setNewUserRole("Editor");
+    
+    toast({
+      title: "User created",
+      description: `New user ${newUserName} has been created successfully.`,
+    });
+  };
+
+  const handleDeleteUser = (id: number) => {
+    setUsers(users.filter(user => user.id !== id));
+    toast({
+      title: "User deleted",
+      description: "The user has been deleted successfully",
     });
   };
 
@@ -161,6 +213,10 @@ const Admin = () => {
             <Button variant="ghost" className="w-full justify-start" size="sm">
               <Video className="mr-2 h-4 w-4" />
               Video Resume
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" size="sm">
+              <Users className="mr-2 h-4 w-4" />
+              User Accounts
             </Button>
             <Button variant="ghost" className="w-full justify-start" size="sm">
               <FileText className="mr-2 h-4 w-4" />
@@ -238,6 +294,7 @@ const Admin = () => {
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="blog">Blog</TabsTrigger>
               <TabsTrigger value="videos">Video Resume</TabsTrigger>
+              <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
@@ -522,6 +579,122 @@ const Admin = () => {
                 <CardFooter>
                   <Button>Save Video</Button>
                 </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="users" className="space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>User Accounts</CardTitle>
+                    <CardDescription>
+                      Manage user accounts for your website.
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="rounded-md border">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b bg-muted/50">
+                            <th className="px-4 py-3 text-left font-medium">Name</th>
+                            <th className="px-4 py-3 text-left font-medium">Email</th>
+                            <th className="px-4 py-3 text-left font-medium">Role</th>
+                            <th className="px-4 py-3 text-right font-medium">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {users.map((user) => (
+                            <tr key={user.id} className="border-b">
+                              <td className="px-4 py-3">{user.name}</td>
+                              <td className="px-4 py-3">{user.email}</td>
+                              <td className="px-4 py-3">{user.role}</td>
+                              <td className="px-4 py-3 text-right">
+                                <Button variant="outline" size="sm" className="mr-2">
+                                  Edit
+                                </Button>
+                                <Button 
+                                  variant="destructive" 
+                                  size="sm"
+                                  onClick={() => handleDeleteUser(user.id)}
+                                >
+                                  Delete
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Create New User</CardTitle>
+                  <CardDescription>
+                    Add a new user account.
+                  </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleAddUser}>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="user-name">Full Name</Label>
+                      <Input 
+                        id="user-name" 
+                        placeholder="Enter user's full name" 
+                        value={newUserName}
+                        onChange={(e) => setNewUserName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="user-email">Email</Label>
+                        <Input 
+                          id="user-email" 
+                          type="email" 
+                          placeholder="user@example.com" 
+                          value={newUserEmail}
+                          onChange={(e) => setNewUserEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="user-password">Password</Label>
+                        <Input 
+                          id="user-password" 
+                          type="password" 
+                          placeholder="Create a secure password" 
+                          value={newUserPassword}
+                          onChange={(e) => setNewUserPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="user-role">Role</Label>
+                      <Select 
+                        value={newUserRole} 
+                        onValueChange={setNewUserRole}
+                      >
+                        <SelectTrigger id="user-role">
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Admin">Admin</SelectItem>
+                          <SelectItem value="Editor">Editor</SelectItem>
+                          <SelectItem value="Viewer">Viewer</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button type="submit">Create User</Button>
+                  </CardFooter>
+                </form>
               </Card>
             </TabsContent>
             
