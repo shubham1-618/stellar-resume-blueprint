@@ -27,7 +27,7 @@ const Index = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
         <div className="container flex items-center justify-between h-16 px-4 md:px-6">
           <a href="#" className="text-xl font-bold">
-            John Doe
+            Shubham Sahare
           </a>
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
@@ -110,11 +110,11 @@ const Index = () => {
         </div>
         <div className="container relative z-10 px-4 text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-            John Doe
+            Shubham Sahare
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-4">Senior Software Engineer & UI/UX Designer</p>
+          <p className="text-xl md:text-2xl text-white/90 mb-4">Full-Stack Developer & UI/UX Designer</p>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8">
-            Passionate about creating beautiful, functional web experiences with a focus on performance and accessibility.
+            Crafting innovative digital solutions with a focus on performance, accessibility, and exceptional user experiences.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button onClick={handleDownloadResume} className="rounded-full px-8">
@@ -136,17 +136,18 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <p className="text-lg">
-                Hello! I'm John, a passionate software engineer with 7+ years of experience building modern web applications.
-                I specialize in React, TypeScript, and UI/UX design, creating solutions that are both beautiful and functional.
+                Hello! I'm Shubham, a passionate full-stack developer with a keen eye for design and a drive for creating efficient, 
+                user-friendly applications. With expertise in modern web technologies, I bring ideas to life through clean code and 
+                intuitive interfaces.
               </p>
               <p className="text-lg">
-                I believe in clean code, continuous learning, and pushing the boundaries of what's possible on the web.
-                When I'm not coding, you'll find me hiking, reading science fiction, or experimenting with new technologies.
+                I believe in continuous learning and staying at the forefront of technological advancements. When not coding,
+                I enjoy exploring new tech, contributing to open-source projects, and sharing knowledge through my blog and community engagement.
               </p>
               <div className="pt-4">
                 <h3 className="text-xl font-medium mb-3">My Skills</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["React", "TypeScript", "Node.js", "UI/UX Design", "Next.js", "GraphQL", "DevOps", "AWS"].map((skill) => (
+                  {["React", "Node.js", "TypeScript", "UI/UX Design", "Next.js", "MongoDB", "PostgreSQL", "AWS"].map((skill) => (
                     <span key={skill} className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
                       {skill}
                     </span>
@@ -172,11 +173,11 @@ const Index = () => {
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">Portfolio</h2>
           <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            A showcase of my best work across different categories and industries.
+            A showcase of my best work across different technologies and industries.
           </p>
           
           <div className="flex justify-center flex-wrap gap-3 mb-8">
-            {["All", "Web Design", "UI/UX", "Mobile Apps", "DevOps"].map((category) => (
+            {["All", "Web Development", "UI/UX", "Mobile Apps", "Backend"].map((category) => (
               <Button key={category} variant={category === "All" ? "default" : "outline"} className="rounded-full">
                 {category}
               </Button>
@@ -259,22 +260,22 @@ const Index = () => {
             {/* Timeline entries */}
             {[
               {
-                company: "Tech Company A",
-                role: "Senior Frontend Developer",
-                period: "2020 - Present",
-                description: "Led the development of the company's flagship product, improving performance by 40% and implementing modern React patterns."
+                company: "Tech Innovators Inc.",
+                role: "Senior Full-Stack Developer",
+                period: "2021 - Present",
+                description: "Led the development of enterprise applications, optimized performance by 40%, and mentored junior developers in modern development practices."
               },
               {
-                company: "Agency B",
-                role: "UI/UX Designer & Developer",
-                period: "2018 - 2020",
-                description: "Designed and developed web applications for various clients, focusing on responsive design and accessibility."
-              },
-              {
-                company: "Startup C",
+                company: "Digital Solutions Ltd.",
                 role: "Frontend Developer",
-                period: "2016 - 2018",
-                description: "Built interactive web applications using React and Redux, collaborating with a small team in a fast-paced environment."
+                period: "2019 - 2021",
+                description: "Designed and implemented responsive web applications for various clients, focusing on accessibility and cross-browser compatibility."
+              },
+              {
+                company: "WebCraft Studios",
+                role: "Junior Developer",
+                period: "2017 - 2019",
+                description: "Built interactive web components using React and Redux, collaborated with designers to implement pixel-perfect interfaces from mockups."
               }
             ].map((job, i) => (
               <div key={i} className={`relative flex flex-col md:flex-row md:justify-between items-start mb-12 ${i % 2 === 0 ? "" : "md:flex-row-reverse"}`}>
@@ -304,7 +305,7 @@ const Index = () => {
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">Latest Articles</h2>
           <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Thoughts, tutorials, and insights from my professional journey.
+            Insights, tutorials, and thoughts from my professional journey.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -324,12 +325,12 @@ const Index = () => {
                       </span>
                     ))}
                   </div>
-                  <h3 className="text-xl font-bold mb-2">How to Build a Modern Web Application</h3>
+                  <h3 className="text-xl font-bold mb-2">Modern Web Development Practices</h3>
                   <p className="text-muted-foreground mb-4 line-clamp-3">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae elit libero, a pharetra augue. Nullam id dolor id nibh ultricies vehicula ut id elit.
+                    Exploring the latest trends and best practices in modern web development to create efficient, maintainable applications.
                   </p>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">May 15, 2023</span>
+                    <span className="text-sm text-muted-foreground">April 10, 2025</span>
                     <Button variant="ghost" className="text-primary p-0 h-auto">Read More →</Button>
                   </div>
                 </div>
@@ -344,7 +345,7 @@ const Index = () => {
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">Get In Touch</h2>
           <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Have a project in mind or want to chat? Feel free to reach out!
+            Have a project in mind or want to discuss opportunities? Feel free to reach out!
           </p>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -358,7 +359,7 @@ const Index = () => {
                     <input
                       id="name"
                       className="w-full p-3 rounded-lg border border-border bg-background"
-                      placeholder="John Smith"
+                      placeholder="Your Name"
                     />
                   </div>
                   <div className="space-y-2">
@@ -369,7 +370,7 @@ const Index = () => {
                       id="email"
                       type="email"
                       className="w-full p-3 rounded-lg border border-border bg-background"
-                      placeholder="john@example.com"
+                      placeholder="your.email@example.com"
                     />
                   </div>
                 </div>
@@ -390,7 +391,7 @@ const Index = () => {
                   <textarea
                     id="message"
                     className="w-full p-3 rounded-lg border border-border bg-background min-h-32"
-                    placeholder="Hello, I'd like to talk about..."
+                    placeholder="Hello Shubham, I'd like to discuss..."
                   />
                 </div>
                 <Button className="w-full">Send Message</Button>
@@ -406,7 +407,7 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
-                      <p>john.doe@example.com</p>
+                      <p>shubham.sahare@example.com</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -445,7 +446,7 @@ const Index = () => {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
-              <h2 className="text-xl font-bold">John Doe</h2>
+              <h2 className="text-xl font-bold">Shubham Sahare</h2>
               <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} All rights reserved.</p>
             </div>
             <div className="flex gap-6">
