@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react"
 
+import { useCallback, useReducer } from "react"
 import { useClientOnly } from "@/hooks/use-client-only"
 
 type Toast = {
@@ -8,6 +8,9 @@ type Toast = {
   description?: string
   action?: React.ReactNode
   duration?: number
+  visible?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const TOAST_LIMIT = 3
@@ -72,7 +75,7 @@ const DEFAULT_STATE: ToasterState = {
 
 const useToast = () => {
   useClientOnly()
-  const [state, dispatch] = useState<ToasterState>(DEFAULT_STATE)
+  const [state, dispatch] = useReducer(toastReducer, DEFAULT_STATE)
 
   const toast = useCallback(
     ({ ...props }: Toast) => {
