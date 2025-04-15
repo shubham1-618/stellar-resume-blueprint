@@ -1,7 +1,8 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { Linkedin, Github, Mail, FileText, Calendar, ChevronDown, Code, Terminal, Server, Database, Cloud, Download, ExternalLink, BookOpen, Cpu, Whatsapp } from "lucide-react";
+import { Linkedin, Github, Mail, FileText, Calendar, ChevronDown, Code, Terminal, Server, Database, Cloud, Download, ExternalLink, BookOpen, Cpu, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ParticleBackground from "@/components/ParticleBackground";
 import Navigation from "@/components/Navigation";
@@ -424,7 +425,7 @@ const Index = () => {
               className="bg-[#25D366] hover:bg-[#25D366]/90 text-white font-medium px-8 py-6 rounded-full"
               onClick={() => window.open(siteData.siteSettings.whatsappLink, '_blank')}
             >
-              <Whatsapp className="mr-2 h-5 w-5" />
+              <MessageSquare className="mr-2 h-5 w-5" />
               Join WhatsApp Group
             </Button>
           </div>
