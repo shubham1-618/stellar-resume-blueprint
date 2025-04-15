@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,19 +23,16 @@ const Admin = () => {
   const { siteData, updatePersonalInfo, updateBlogPosts, addBlogPost, updateBlogPost, deleteBlogPost, 
           updateVideos, addVideo, updateVideo, deleteVideo, updateSiteSettings } = useSiteData();
 
-  // User management states
   const [users, setUsers] = useState([
     { id: 1, name: "Admin User", email: "admin@example.com", password: "password", role: "Admin" },
     { id: 2, name: "Content Manager", email: "manager@example.com", password: "password", role: "Editor" },
   ]);
 
-  // New user form states
   const [newUserName, setNewUserName] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
   const [newUserRole, setNewUserRole] = useState("Editor");
 
-  // Blog form states
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogExcerpt, setNewBlogExcerpt] = useState("");
   const [newBlogCategory, setNewBlogCategory] = useState("DevOps");
@@ -45,14 +41,12 @@ const Admin = () => {
   const [newBlogStatus, setNewBlogStatus] = useState<"Published" | "Draft">("Draft");
   const [editingBlogId, setEditingBlogId] = useState<number | null>(null);
 
-  // Video form states
   const [newVideoTitle, setNewVideoTitle] = useState("");
   const [newVideoDescription, setNewVideoDescription] = useState("");
   const [newVideoPlatform, setNewVideoPlatform] = useState<"youtube" | "vimeo">("youtube");
   const [newVideoEmbedUrl, setNewVideoEmbedUrl] = useState("");
   const [editingVideoId, setEditingVideoId] = useState<number | null>(null);
 
-  // Settings form states
   const [whatsappLink, setWhatsappLink] = useState(siteData.siteSettings.whatsappLink);
   const [showWhatsappSection, setShowWhatsappSection] = useState(siteData.siteSettings.showWhatsappSection);
   const [heroVideoUrl, setHeroVideoUrl] = useState(siteData.siteSettings.heroVideoUrl);
@@ -60,7 +54,6 @@ const Admin = () => {
   const [siteDescription, setSiteDescription] = useState(siteData.siteSettings.siteDescription);
   const [seoKeywords, setSeoKeywords] = useState(siteData.siteSettings.seoKeywords);
 
-  // Personal info form states
   const [name, setName] = useState(siteData.personalInfo.name);
   const [jobTitle, setJobTitle] = useState(siteData.personalInfo.jobTitle);
   const [bio, setBio] = useState(siteData.personalInfo.bio);
@@ -72,7 +65,6 @@ const Admin = () => {
   const [newSkill, setNewSkill] = useState("");
 
   useEffect(() => {
-    // Update states when siteData changes
     setWhatsappLink(siteData.siteSettings.whatsappLink);
     setShowWhatsappSection(siteData.siteSettings.showWhatsappSection);
     setHeroVideoUrl(siteData.siteSettings.heroVideoUrl);
@@ -93,7 +85,6 @@ const Admin = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check credentials against users array
     const foundUser = users.find(user => user.email === email && user.password === password);
     
     if (foundUser) {
@@ -114,7 +105,6 @@ const Admin = () => {
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
     if (!fullName || !email || !password || !confirmPassword) {
       toast({
         title: "Registration Error",
@@ -133,7 +123,6 @@ const Admin = () => {
       return;
     }
     
-    // Check if email already exists
     if (users.some(user => user.email === email)) {
       toast({
         title: "Registration Error",
@@ -143,14 +132,13 @@ const Admin = () => {
       return;
     }
     
-    // Create new user
     const newId = Math.max(...users.map(u => u.id), 0) + 1;
     const newUser = {
       id: newId,
       name: fullName,
       email,
       password,
-      role: "Editor" // Default role for new registrations
+      role: "Editor"
     };
     
     setUsers([...users, newUser]);
@@ -160,17 +148,14 @@ const Admin = () => {
       description: "You can now log in with your credentials",
     });
     
-    // Switch to login mode
     setAuthMode("login");
     
-    // Clear form
     setFullName("");
     setEmail("");
     setPassword("");
     setConfirmPassword("");
   };
 
-  // Blog management functions
   const handleDeleteBlog = (id: number) => {
     deleteBlogPost(id);
     toast({
@@ -210,7 +195,6 @@ const Admin = () => {
     const today = new Date().toISOString().split('T')[0];
     
     if (editingBlogId) {
-      // Update existing blog
       updateBlogPost(editingBlogId, {
         title: newBlogTitle,
         excerpt: newBlogExcerpt,
@@ -225,7 +209,6 @@ const Admin = () => {
         description: "The blog post has been successfully updated",
       });
     } else {
-      // Add new blog
       addBlogPost({
         title: newBlogTitle,
         excerpt: newBlogExcerpt,
@@ -241,7 +224,6 @@ const Admin = () => {
       });
     }
     
-    // Clear form
     resetBlogForm();
   };
 
@@ -255,7 +237,6 @@ const Admin = () => {
     setNewBlogStatus("Draft");
   };
 
-  // Video management functions
   const handleDeleteVideo = (id: number) => {
     deleteVideo(id);
     toast({
@@ -283,7 +264,6 @@ const Admin = () => {
     }
     
     if (editingVideoId) {
-      // Update existing video
       updateVideo(editingVideoId, {
         title: newVideoTitle,
         description: newVideoDescription,
@@ -296,7 +276,6 @@ const Admin = () => {
         description: "The video has been successfully updated",
       });
     } else {
-      // Add new video
       addVideo({
         title: newVideoTitle,
         description: newVideoDescription,
@@ -310,7 +289,6 @@ const Admin = () => {
       });
     }
     
-    // Clear form
     resetVideoForm();
   };
 
@@ -322,7 +300,6 @@ const Admin = () => {
     setNewVideoEmbedUrl("");
   };
 
-  // User management functions
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -335,7 +312,6 @@ const Admin = () => {
       return;
     }
     
-    // Check if email already exists
     if (users.some(user => user.email === newUserEmail)) {
       toast({
         title: "Error",
@@ -354,7 +330,6 @@ const Admin = () => {
       role: newUserRole
     }]);
     
-    // Reset form
     setNewUserName("");
     setNewUserEmail("");
     setNewUserPassword("");
@@ -374,7 +349,6 @@ const Admin = () => {
     });
   };
 
-  // Settings management functions
   const handleSaveSettings = () => {
     updateSiteSettings({
       whatsappLink,
@@ -391,7 +365,6 @@ const Admin = () => {
     });
   };
 
-  // Personal info management functions
   const handleSavePersonalInfo = () => {
     updatePersonalInfo({
       name,
@@ -558,7 +531,6 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white">
       <div className="flex">
-        {/* Sidebar */}
         <div className="hidden md:flex w-64 flex-col fixed inset-y-0 border-r border-white/10 bg-gradient-to-b from-[#1A1F2C] to-[#0F172A]">
           <div className="px-6 py-6">
             <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">Dashboard</h2>
@@ -620,7 +592,6 @@ const Admin = () => {
           </div>
         </div>
 
-        {/* Main content */}
         <main className="flex-1 md:ml-64 p-6">
           <h1 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">Admin Dashboard</h1>
 
@@ -818,7 +789,6 @@ const Admin = () => {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  {/* Blog post form */}
                   <div className="space-y-4 mb-8 bg-white/5 p-4 rounded-lg">
                     <div className="space-y-2">
                       <Label htmlFor="blogTitle" className="text-white/90">Title</Label>
@@ -906,7 +876,6 @@ const Admin = () => {
                     </div>
                   </div>
                   
-                  {/* Blog posts list */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-medium text-white">Existing Posts</h3>
                     {siteData.blogPosts.length > 0 ? (
@@ -988,7 +957,6 @@ const Admin = () => {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  {/* Video form */}
                   <div className="space-y-4 mb-8 bg-white/5 p-4 rounded-lg">
                     <div className="space-y-2">
                       <Label htmlFor="videoTitle" className="text-white/90">Title</Label>
@@ -1047,7 +1015,6 @@ const Admin = () => {
                     </div>
                   </div>
                   
-                  {/* Videos list */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-medium text-white">Existing Videos</h3>
                     {siteData.videos.length > 0 ? (
@@ -1099,7 +1066,6 @@ const Admin = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {/* User form */}
                   <form onSubmit={handleAddUser} className="space-y-4 mb-8 bg-white/5 p-4 rounded-lg">
                     <div className="space-y-2">
                       <Label htmlFor="userName" className="text-white/90">Full Name</Label>
@@ -1161,7 +1127,6 @@ const Admin = () => {
                     </div>
                   </form>
                   
-                  {/* Users list */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-medium text-white">Existing Users</h3>
                     <div className="space-y-3">
@@ -1290,4 +1255,3 @@ const Admin = () => {
 };
 
 export default Admin;
-
