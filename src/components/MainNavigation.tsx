@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -17,6 +18,13 @@ const MainNavigation = () => {
   const location = useLocation();
   const { siteData } = useSiteData();
   
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="w-full flex justify-center py-4 backdrop-blur-md bg-black/20 fixed top-0 z-50">
       <div className="container flex items-center justify-between px-4">
@@ -40,6 +48,54 @@ const MainNavigation = () => {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
+              <button onClick={() => scrollToSection('about')}>
+                <NavigationMenuLink 
+                  className={cn(
+                    navigationMenuTriggerStyle(), 
+                    "bg-transparent hover:bg-white/10"
+                  )}
+                >
+                  About
+                </NavigationMenuLink>
+              </button>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <button onClick={() => scrollToSection('portfolio')}>
+                <NavigationMenuLink 
+                  className={cn(
+                    navigationMenuTriggerStyle(), 
+                    "bg-transparent hover:bg-white/10"
+                  )}
+                >
+                  Portfolio
+                </NavigationMenuLink>
+              </button>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <button onClick={() => scrollToSection('projects')}>
+                <NavigationMenuLink 
+                  className={cn(
+                    navigationMenuTriggerStyle(), 
+                    "bg-transparent hover:bg-white/10"
+                  )}
+                >
+                  Projects
+                </NavigationMenuLink>
+              </button>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <button onClick={() => scrollToSection('experience')}>
+                <NavigationMenuLink 
+                  className={cn(
+                    navigationMenuTriggerStyle(), 
+                    "bg-transparent hover:bg-white/10"
+                  )}
+                >
+                  Experience
+                </NavigationMenuLink>
+              </button>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
               <Link to="/blog">
                 <NavigationMenuLink 
                   className={cn(
@@ -53,7 +109,7 @@ const MainNavigation = () => {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <a href="#contact">
+              <button onClick={() => scrollToSection('contact')}>
                 <NavigationMenuLink 
                   className={cn(
                     navigationMenuTriggerStyle(), 
@@ -62,7 +118,7 @@ const MainNavigation = () => {
                 >
                   Contact
                 </NavigationMenuLink>
-              </a>
+              </button>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
@@ -70,12 +126,7 @@ const MainNavigation = () => {
         <div className="hidden md:block">
           <Button 
             className="rounded-full px-6 bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none transition-all"
-            onClick={() => {
-              const contactSection = document.getElementById('contact');
-              if (contactSection) {
-                contactSection.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
+            onClick={() => scrollToSection('contact')}
           >
             Let's Talk
           </Button>
