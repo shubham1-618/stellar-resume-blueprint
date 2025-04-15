@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -50,19 +49,6 @@ const MainNavigation = () => {
                   )}
                 >
                   Blog
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/resume">
-                <NavigationMenuLink 
-                  className={cn(
-                    navigationMenuTriggerStyle(), 
-                    "bg-transparent hover:bg-white/10",
-                    location.pathname === "/resume" && "text-[#9b87f5]"
-                  )}
-                >
-                  Video Resume
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>

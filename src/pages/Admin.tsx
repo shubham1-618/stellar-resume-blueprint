@@ -538,39 +538,39 @@ const Admin = () => {
           </div>
           <Separator className="bg-white/10" />
           <nav className="flex-1 p-4 space-y-2">
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start text-white hover:bg-white/10" 
+              size="sm"
+              onClick={() => document.getElementById('profile')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <User className="mr-2 h-4 w-4" />
               Profile
             </Button>
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
-              <Globe className="mr-2 h-4 w-4" />
-              Portfolio
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start text-white hover:bg-white/10" 
+              size="sm"
+              onClick={() => document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <BookOpen className="mr-2 h-4 w-4" />
               Blog
             </Button>
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
-              <Video className="mr-2 h-4 w-4" />
-              Video Resume
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start text-white hover:bg-white/10" 
+              size="sm"
+              onClick={() => document.getElementById('users')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <Users className="mr-2 h-4 w-4" />
               User Accounts
             </Button>
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
-              <FileText className="mr-2 h-4 w-4" />
-              Projects
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
-              <Briefcase className="mr-2 h-4 w-4" />
-              Experience
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
-              <Image className="mr-2 h-4 w-4" />
-              Media
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start text-white hover:bg-white/10" 
+              size="sm"
+              onClick={() => document.getElementById('settings')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </Button>
@@ -629,10 +629,9 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="profile" className="text-white">
-            <TabsList className="mb-6 bg-white/5 text-white">
+            <TabsList className="mb-6 bg-white/5 text-white sticky top-0 z-10">
               <TabsTrigger value="profile" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Profile</TabsTrigger>
               <TabsTrigger value="blog" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Blog</TabsTrigger>
-              <TabsTrigger value="videos" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Video Resume</TabsTrigger>
               <TabsTrigger value="users" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Users</TabsTrigger>
               <TabsTrigger value="settings" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Settings</TabsTrigger>
             </TabsList>
@@ -933,123 +932,6 @@ const Admin = () => {
                     ) : (
                       <div className="bg-white/5 p-4 rounded-lg text-center text-white/60">
                         No blog posts yet. Create your first post!
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="videos" className="space-y-6">
-              <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 text-white">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Video Resume</CardTitle>
-                    <CardDescription className="text-white/70">
-                      Manage your video resume and presentations.
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    onClick={resetVideoForm}
-                    className="bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none"
-                  >
-                    Add Video
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 mb-8 bg-white/5 p-4 rounded-lg">
-                    <div className="space-y-2">
-                      <Label htmlFor="videoTitle" className="text-white/90">Title</Label>
-                      <Input 
-                        id="videoTitle" 
-                        value={newVideoTitle}
-                        onChange={(e) => setNewVideoTitle(e.target.value)}
-                        placeholder="Enter video title"
-                        className="bg-white/5 border-white/10 text-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="videoDescription" className="text-white/90">Description</Label>
-                      <Textarea 
-                        id="videoDescription" 
-                        value={newVideoDescription}
-                        onChange={(e) => setNewVideoDescription(e.target.value)}
-                        placeholder="Description of what the video is about"
-                        className="h-20 bg-white/5 border-white/10 text-white"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="videoPlatform" className="text-white/90">Platform</Label>
-                        <Select 
-                          value={newVideoPlatform} 
-                          onValueChange={(val) => setNewVideoPlatform(val as "youtube" | "vimeo")}
-                        >
-                          <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                            <SelectValue placeholder="Select platform" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#1A1F2C] text-white border-white/10">
-                            <SelectItem value="youtube">YouTube</SelectItem>
-                            <SelectItem value="vimeo">Vimeo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="videoEmbedUrl" className="text-white/90">Embed URL</Label>
-                        <Input 
-                          id="videoEmbedUrl" 
-                          value={newVideoEmbedUrl}
-                          onChange={(e) => setNewVideoEmbedUrl(e.target.value)}
-                          placeholder={`${newVideoPlatform === 'youtube' ? 'https://www.youtube.com/embed/...' : 'https://player.vimeo.com/video/...'}`}
-                          className="bg-white/5 border-white/10 text-white"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      <Button 
-                        onClick={handleSaveVideo}
-                        className="bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none"
-                      >
-                        {editingVideoId ? "Update" : "Add"} Video
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-white">Existing Videos</h3>
-                    {siteData.videos.length > 0 ? (
-                      siteData.videos.map((video) => (
-                        <div key={video.id} className="bg-white/5 p-4 rounded-lg flex flex-col md:flex-row justify-between">
-                          <div className="flex-1">
-                            <h4 className="text-lg font-medium">{video.title}</h4>
-                            <div className="text-sm text-white/60 mb-2">
-                              Platform: <span className="capitalize">{video.platform}</span>
-                            </div>
-                            <p className="text-white/70 text-sm line-clamp-2">{video.description}</p>
-                          </div>
-                          <div className="flex mt-3 md:mt-0 space-x-2 md:self-start">
-                            <Button 
-                              variant="outline"
-                              size="sm"
-                              className="border-white/10 text-white hover:bg-white/10"
-                              onClick={() => handleEditVideo(video)}
-                            >
-                              Edit
-                            </Button>
-                            <Button 
-                              variant="outline"
-                              size="sm"
-                              className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                              onClick={() => handleDeleteVideo(video.id)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="bg-white/5 p-4 rounded-lg text-center text-white/60">
-                        No videos yet. Add your first video!
                       </div>
                     )}
                   </div>
