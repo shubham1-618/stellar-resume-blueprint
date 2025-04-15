@@ -1,11 +1,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { Linkedin, Github, Mail, FileText, Calendar, ChevronDown, Code, Terminal, Server, Database, Cloud, Download, ExternalLink, BookOpen, Cpu, MessageSquare } from "lucide-react";
+import { Linkedin, Github, Mail, Calendar, ChevronDown, Code, Terminal, Server, Database, Cloud, Download, ExternalLink, BookOpen, Cpu, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ParticleBackground from "@/components/ParticleBackground";
-import Navigation from "@/components/Navigation";
+import MainNavigation from "@/components/MainNavigation";
 import { useSiteData } from "@/context/SiteDataContext";
 import { Link } from "react-router-dom";
 
@@ -84,60 +83,36 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white overflow-x-hidden">
-      <Navigation />
+      <MainNavigation />
 
-      {/* Hero Section */}
+      {/* Hero Section with Integrated Video */}
       <section id="home" ref={sectionRefs.home} className="relative flex flex-col items-center justify-center min-h-screen pt-16 overflow-hidden">
         <ParticleBackground />
-        <div className="absolute inset-0 z-0">
-          {/* Video background - if configured */}
-          <div className="bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#9b87f5]/20 absolute inset-0 z-10"></div>
-          {siteData.siteSettings.heroVideoUrl && (
-            <iframe 
-              className="w-full h-full object-cover" 
-              src={`${siteData.siteSettings.heroVideoUrl}${isMuted ? '?mute=1' : ''}`}
-              title="Background Video"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          )}
-          <button 
-            onClick={toggleMute} 
-            className="absolute bottom-4 right-4 z-20 bg-black/30 p-2 rounded-full hover:bg-black/50 transition-colors"
-          >
-            {isMuted ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-              </svg>
-            )}
-          </button>
-        </div>
-        <div className="container relative z-10 px-4 text-center">
-          <div className="animate-fade-in">
+        <div className="container relative z-10 px-4 flex flex-col lg:flex-row items-center gap-8">
+          <div className="lg:w-1/2 text-center lg:text-left animate-fade-in">
             <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">
               {siteData.personalInfo.name}
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-4">{siteData.personalInfo.jobTitle}</p>
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8">
+            <p className="text-lg md:text-xl text-white/80 max-w-2xl lg:mx-0 mx-auto mb-8">
               {siteData.personalInfo.bio}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button onClick={handleDownloadResume} className="rounded-full px-8 bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none transition-all duration-300 transform hover:scale-105">
                 <Download className="mr-2 h-4 w-4" />
                 Download Resume
               </Button>
-              <Button variant="outline" className="rounded-full px-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
+              <Button 
+                variant="outline" 
+                className="rounded-full px-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+                onClick={() => scrollToSection('contact')}
+              >
                 <Mail className="mr-2 h-4 w-4" />
                 Contact Me
               </Button>
             </div>
             
-            <div className="mt-12 flex justify-center space-x-4">
+            <div className="mt-12 flex justify-center lg:justify-start space-x-4">
               {siteData.socialLinks.map((link) => (
                 <Button 
                   key={link.id}
@@ -152,6 +127,41 @@ const Index = () => {
                   {link.platform === "Email" && <Mail className="h-5 w-5" />}
                 </Button>
               ))}
+            </div>
+          </div>
+          
+          {/* Video Resume Embedded */}
+          <div className="lg:w-1/2 mt-12 lg:mt-0">
+            <div className="aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 shadow-2xl relative">
+              {siteData.siteSettings.heroVideoUrl ? (
+                <iframe 
+                  className="w-full h-full"
+                  src={`${siteData.siteSettings.heroVideoUrl}${isMuted ? '?mute=1' : ''}`}
+                  title="Video Resume"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-white/40">
+                  <p>Video Resume</p>
+                  <p className="text-sm">(Configure in Admin Panel)</p>
+                </div>
+              )}
+              <button 
+                onClick={toggleMute} 
+                className="absolute bottom-4 right-4 bg-black/30 p-2 rounded-full hover:bg-black/50 transition-colors z-10"
+              >
+                {isMuted ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -394,8 +404,9 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No articles available yet.</p>
+            <div className="text-center py-8 bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 rounded-xl p-8">
+              <BookOpen className="h-16 w-16 mx-auto mb-4 text-white/20" />
+              <p className="text-white/60">No articles available yet.</p>
             </div>
           )}
           
@@ -411,23 +422,28 @@ const Index = () => {
         </div>
       </section>
 
-      {/* WhatsApp Section */}
+      {/* WhatsApp Section - Styled to match the site theme */}
       {siteData.siteSettings.showWhatsappSection && (
-        <section className="py-10 relative bg-gradient-to-r from-[#075E54]/80 to-[#128C7E]/80">
-          <div className="container px-4 md:px-6 flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-6 md:mb-0">
-              <h3 className="text-2xl font-bold mb-2">Join My WhatsApp Group</h3>
-              <p className="text-white/80 max-w-lg">
-                Connect with me and other DevOps professionals to share knowledge, discuss challenges, and stay updated.
-              </p>
+        <section className="py-16 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#075E54]/30 to-[#128C7E]/30 backdrop-blur-sm -z-10"></div>
+          <div className="container px-4 md:px-6">
+            <div className="bg-gradient-to-br from-[#075E54]/60 to-[#128C7E]/60 border border-white/10 rounded-xl p-8 shadow-lg backdrop-blur-md">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="text-center md:text-left">
+                  <h3 className="text-2xl font-bold mb-2 text-white">Join My WhatsApp Community</h3>
+                  <p className="text-white/80 max-w-lg">
+                    Connect with me and other DevOps professionals to share knowledge, discuss challenges, and stay updated with the latest in cloud infrastructure.
+                  </p>
+                </div>
+                <Button 
+                  className="bg-[#25D366] hover:bg-[#25D366]/90 text-white font-medium px-8 py-6 rounded-full shadow-lg transform hover:translate-y-[-2px] transition-all duration-300"
+                  onClick={() => window.open(siteData.siteSettings.whatsappLink, '_blank')}
+                >
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  Join WhatsApp Group
+                </Button>
+              </div>
             </div>
-            <Button 
-              className="bg-[#25D366] hover:bg-[#25D366]/90 text-white font-medium px-8 py-6 rounded-full"
-              onClick={() => window.open(siteData.siteSettings.whatsappLink, '_blank')}
-            >
-              <MessageSquare className="mr-2 h-5 w-5" />
-              Join WhatsApp Group
-            </Button>
           </div>
         </section>
       )}

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,16 +13,20 @@ import { useSiteData, type BlogPost, type VideoItem } from "@/context/SiteDataCo
 
 const Admin = () => {
   const { toast } = useToast();
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  
   const { siteData, updatePersonalInfo, updateBlogPosts, addBlogPost, updateBlogPost, deleteBlogPost, 
           updateVideos, addVideo, updateVideo, deleteVideo, updateSiteSettings } = useSiteData();
 
   // User management states
   const [users, setUsers] = useState([
-    { id: 1, name: "Admin User", email: "admin@example.com", role: "Admin" },
-    { id: 2, name: "Content Manager", email: "manager@example.com", role: "Editor" },
+    { id: 1, name: "Admin User", email: "admin@example.com", password: "password", role: "Admin" },
+    { id: 2, name: "Content Manager", email: "manager@example.com", password: "password", role: "Editor" },
   ]);
 
   // New user form states
@@ -38,6 +41,7 @@ const Admin = () => {
   const [newBlogCategory, setNewBlogCategory] = useState("DevOps");
   const [newBlogContent, setNewBlogContent] = useState("");
   const [newBlogDate, setNewBlogDate] = useState("");
+  const [newBlogStatus, setNewBlogStatus] = useState<"Published" | "Draft">("Draft");
   const [editingBlogId, setEditingBlogId] = useState<number | null>(null);
 
   // Video form states
@@ -88,13 +92,14 @@ const Admin = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // This is a placeholder for actual authentication logic
-    // In a real app, you would validate credentials against a backend
-    if (email === "admin@example.com" && password === "password") {
+    // Check credentials against users array
+    const foundUser = users.find(user => user.email === email && user.password === password);
+    
+    if (foundUser) {
       setIsAuthenticated(true);
       toast({
         title: "Login successful",
-        description: "Welcome to the admin dashboard",
+        description: `Welcome back, ${foundUser.name}`,
       });
     } else {
       toast({
@@ -105,13 +110,80 @@ const Admin = () => {
     }
   };
 
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!fullName || !email || !password || !confirmPassword) {
+      toast({
+        title: "Registration Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: "Registration Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check if email already exists
+    if (users.some(user => user.email === email)) {
+      toast({
+        title: "Registration Error",
+        description: "Email already registered",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Create new user
+    const newId = Math.max(...users.map(u => u.id), 0) + 1;
+    const newUser = {
+      id: newId,
+      name: fullName,
+      email,
+      password,
+      role: "Editor" // Default role for new registrations
+    };
+    
+    setUsers([...users, newUser]);
+    
+    toast({
+      title: "Registration successful",
+      description: "You can now log in with your credentials",
+    });
+    
+    // Switch to login mode
+    setAuthMode("login");
+    
+    // Clear form
+    setFullName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+  };
+
   // Blog management functions
   const handleDeleteBlog = (id: number) => {
     deleteBlogPost(id);
+    toast({
+      title: "Blog post deleted",
+      description: "The blog post has been successfully deleted",
+    });
   };
 
   const handleBlogStatusChange = (id: number, status: "Published" | "Draft") => {
     updateBlogPost(id, { status });
+    toast({
+      title: `Blog post ${status.toLowerCase()}`,
+      description: `The blog post has been ${status.toLowerCase()}`,
+    });
   };
 
   const handleEditBlog = (blog: BlogPost) => {
@@ -121,6 +193,7 @@ const Admin = () => {
     setNewBlogCategory(blog.category);
     setNewBlogContent(blog.content);
     setNewBlogDate(blog.date);
+    setNewBlogStatus(blog.status);
   };
 
   const handleSaveBlog = () => {
@@ -142,7 +215,13 @@ const Admin = () => {
         excerpt: newBlogExcerpt,
         category: newBlogCategory,
         content: newBlogContent,
-        date: newBlogDate || today
+        date: newBlogDate || today,
+        status: newBlogStatus
+      });
+      
+      toast({
+        title: "Blog post updated",
+        description: "The blog post has been successfully updated",
       });
     } else {
       // Add new blog
@@ -152,7 +231,12 @@ const Admin = () => {
         category: newBlogCategory,
         content: newBlogContent,
         date: newBlogDate || today,
-        status: "Draft"
+        status: newBlogStatus
+      });
+      
+      toast({
+        title: "Blog post created",
+        description: "A new blog post has been created successfully",
       });
     }
     
@@ -167,11 +251,16 @@ const Admin = () => {
     setNewBlogCategory("DevOps");
     setNewBlogContent("");
     setNewBlogDate("");
+    setNewBlogStatus("Draft");
   };
 
   // Video management functions
   const handleDeleteVideo = (id: number) => {
     deleteVideo(id);
+    toast({
+      title: "Video deleted",
+      description: "The video has been successfully deleted",
+    });
   };
 
   const handleEditVideo = (video: VideoItem) => {
@@ -200,6 +289,11 @@ const Admin = () => {
         platform: newVideoPlatform,
         embedUrl: newVideoEmbedUrl
       });
+      
+      toast({
+        title: "Video updated",
+        description: "The video has been successfully updated",
+      });
     } else {
       // Add new video
       addVideo({
@@ -207,6 +301,11 @@ const Admin = () => {
         description: newVideoDescription,
         platform: newVideoPlatform,
         embedUrl: newVideoEmbedUrl
+      });
+      
+      toast({
+        title: "Video added",
+        description: "A new video has been added successfully",
       });
     }
     
@@ -235,11 +334,22 @@ const Admin = () => {
       return;
     }
     
+    // Check if email already exists
+    if (users.some(user => user.email === newUserEmail)) {
+      toast({
+        title: "Error",
+        description: "A user with this email already exists",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const newId = Math.max(...users.map(u => u.id), 0) + 1;
     setUsers([...users, {
       id: newId,
       name: newUserName,
       email: newUserEmail,
+      password: newUserPassword,
       role: newUserRole
     }]);
     
@@ -313,89 +423,181 @@ const Admin = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-muted/40">
-        <Card className="w-full max-w-md">
+      <div className="flex h-screen w-full items-center justify-center bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white p-4">
+        <Card className="w-full max-w-md bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 text-white">
           <CardHeader>
-            <CardTitle className="text-2xl">Admin Dashboard</CardTitle>
-            <CardDescription>Login to manage your personal website content</CardDescription>
+            <CardTitle className="text-2xl text-center">Admin Dashboard</CardTitle>
+            <CardDescription className="text-center text-white/70">
+              {authMode === "login" 
+                ? "Login to manage your personal website content" 
+                : "Create a new admin account"}
+            </CardDescription>
           </CardHeader>
-          <form onSubmit={handleLogin}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="admin@example.com" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full">Login</Button>
-            </CardFooter>
-          </form>
+          
+          {authMode === "login" ? (
+            <form onSubmit={handleLogin}>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-white/90">Email</Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="admin@example.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-white/90">Password</Label>
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col space-y-4">
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none"
+                >
+                  Login
+                </Button>
+                <p className="text-sm text-center text-white/70">
+                  Don't have an account?{" "}
+                  <button 
+                    type="button"
+                    className="text-[#9b87f5] hover:text-[#D6BCFA] transition-colors"
+                    onClick={() => setAuthMode("register")}
+                  >
+                    Register
+                  </button>
+                </p>
+              </CardFooter>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister}>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-white/90">Full Name</Label>
+                  <Input 
+                    id="fullName" 
+                    placeholder="John Doe" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="registerEmail" className="text-white/90">Email</Label>
+                  <Input 
+                    id="registerEmail" 
+                    type="email" 
+                    placeholder="admin@example.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="registerPassword" className="text-white/90">Password</Label>
+                  <Input 
+                    id="registerPassword" 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-white/90">Confirm Password</Label>
+                  <Input 
+                    id="confirmPassword" 
+                    type="password" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col space-y-4">
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none"
+                >
+                  Register
+                </Button>
+                <p className="text-sm text-center text-white/70">
+                  Already have an account?{" "}
+                  <button 
+                    type="button"
+                    className="text-[#9b87f5] hover:text-[#D6BCFA] transition-colors"
+                    onClick={() => setAuthMode("login")}
+                  >
+                    Login
+                  </button>
+                </p>
+              </CardFooter>
+            </form>
+          )}
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white">
       <div className="flex">
         {/* Sidebar */}
-        <div className="hidden md:flex w-64 flex-col fixed inset-y-0 border-r bg-card">
+        <div className="hidden md:flex w-64 flex-col fixed inset-y-0 border-r border-white/10 bg-gradient-to-b from-[#1A1F2C] to-[#0F172A]">
           <div className="px-6 py-6">
-            <h2 className="text-xl font-bold">Dashboard</h2>
-            <p className="text-sm text-muted-foreground">Manage your website content</p>
+            <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">Dashboard</h2>
+            <p className="text-sm text-white/60">Manage your website content</p>
           </div>
-          <Separator />
+          <Separator className="bg-white/10" />
           <nav className="flex-1 p-4 space-y-2">
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <User className="mr-2 h-4 w-4" />
               Profile
             </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <Globe className="mr-2 h-4 w-4" />
               Portfolio
             </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <BookOpen className="mr-2 h-4 w-4" />
               Blog
             </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <Video className="mr-2 h-4 w-4" />
               Video Resume
             </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <Users className="mr-2 h-4 w-4" />
               User Accounts
             </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <FileText className="mr-2 h-4 w-4" />
               Projects
             </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <Briefcase className="mr-2 h-4 w-4" />
               Experience
             </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <Image className="mr-2 h-4 w-4" />
               Media
             </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
+            <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" size="sm">
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </Button>
@@ -403,7 +605,7 @@ const Admin = () => {
           <div className="p-4 mt-auto">
             <Button 
               variant="outline" 
-              className="w-full" 
+              className="w-full border-white/10 text-white hover:bg-white/10" 
               onClick={() => {
                 setIsAuthenticated(false);
                 toast({
@@ -419,145 +621,154 @@ const Admin = () => {
 
         {/* Main content */}
         <main className="flex-1 md:ml-64 p-6">
-          <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">Admin Dashboard</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card>
+            <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 text-white">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-                <Globe className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-white/90">Total Views</CardTitle>
+                <Globe className="h-4 w-4 text-white/60" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">1,245</div>
-                <p className="text-xs text-muted-foreground">+12% from last month</p>
+                <p className="text-xs text-white/60">+12% from last month</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 text-white">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Blog Posts</CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-white/90">Blog Posts</CardTitle>
+                <BookOpen className="h-4 w-4 text-white/60" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{siteData.blogPosts.length}</div>
-                <p className="text-xs text-muted-foreground">Last post 3 days ago</p>
+                <p className="text-xs text-white/60">Last post 3 days ago</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 text-white">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Videos</CardTitle>
-                <Video className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-white/90">Videos</CardTitle>
+                <Video className="h-4 w-4 text-white/60" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{siteData.videos.length}</div>
-                <p className="text-xs text-muted-foreground">Last video added 1 week ago</p>
+                <p className="text-xs text-white/60">Last video added 1 week ago</p>
               </CardContent>
             </Card>
           </div>
 
-          <Tabs defaultValue="profile">
-            <TabsList className="mb-6">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="blog">Blog</TabsTrigger>
-              <TabsTrigger value="videos">Video Resume</TabsTrigger>
-              <TabsTrigger value="users">Users</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+          <Tabs defaultValue="profile" className="text-white">
+            <TabsList className="mb-6 bg-white/5 text-white">
+              <TabsTrigger value="profile" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Profile</TabsTrigger>
+              <TabsTrigger value="blog" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Blog</TabsTrigger>
+              <TabsTrigger value="videos" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Video Resume</TabsTrigger>
+              <TabsTrigger value="users" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Users</TabsTrigger>
+              <TabsTrigger value="settings" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">Settings</TabsTrigger>
             </TabsList>
             
             <TabsContent value="profile" className="space-y-6">
-              <Card>
+              <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 text-white">
                 <CardHeader>
                   <CardTitle>Personal Information</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-white/70">
                     Update your personal information and contact details.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="fullName">Full Name</Label>
+                      <Label htmlFor="fullName" className="text-white/90">Full Name</Label>
                       <Input 
                         id="fullName" 
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        className="bg-white/5 border-white/10 text-white"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="jobTitle">Job Title</Label>
+                      <Label htmlFor="jobTitle" className="text-white/90">Job Title</Label>
                       <Input 
                         id="jobTitle" 
                         value={jobTitle}
                         onChange={(e) => setJobTitle(e.target.value)}
+                        className="bg-white/5 border-white/10 text-white"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email" className="text-white/90">Email</Label>
                       <Input 
                         id="email" 
                         type="email" 
                         value={personalEmail}
                         onChange={(e) => setPersonalEmail(e.target.value)}
+                        className="bg-white/5 border-white/10 text-white"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
+                      <Label htmlFor="location" className="text-white/90">Location</Label>
                       <Input 
                         id="location" 
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
+                        className="bg-white/5 border-white/10 text-white"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="profileImage">Profile Image URL</Label>
+                      <Label htmlFor="profileImage" className="text-white/90">Profile Image URL</Label>
                       <Input 
                         id="profileImage" 
                         value={profileImageUrl}
                         onChange={(e) => setProfileImageUrl(e.target.value)}
                         placeholder="https://example.com/image.jpg"
+                        className="bg-white/5 border-white/10 text-white"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="resumeUrl">Resume URL (PDF)</Label>
+                      <Label htmlFor="resumeUrl" className="text-white/90">Resume URL (PDF)</Label>
                       <Input 
                         id="resumeUrl" 
                         value={resumeUrl}
                         onChange={(e) => setResumeUrl(e.target.value)}
                         placeholder="https://example.com/resume.pdf"
+                        className="bg-white/5 border-white/10 text-white"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
+                    <Label htmlFor="bio" className="text-white/90">Bio</Label>
                     <Textarea 
                       id="bio" 
-                      className="min-h-32"
+                      className="min-h-32 bg-white/5 border-white/10 text-white"
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
                     />
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button onClick={handleSavePersonalInfo}>
+                  <Button 
+                    onClick={handleSavePersonalInfo}
+                    className="bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none"
+                  >
                     Save Changes
                   </Button>
                 </CardFooter>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 text-white">
                 <CardHeader>
                   <CardTitle>Skills</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-white/70">
                     Add or remove your technical skills.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
                     {skills.map((skill) => (
-                      <div key={skill} className="flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                      <div key={skill} className="flex items-center gap-2 px-3 py-1 bg-[#9b87f5]/10 text-[#9b87f5] rounded-full text-sm border border-[#9b87f5]/20">
                         {skill}
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-4 w-4 p-0"
+                          className="h-4 w-4 p-0 text-[#9b87f5] hover:text-[#D6BCFA] hover:bg-transparent"
                           onClick={() => handleRemoveSkill(skill)}
                         >
                           ×
@@ -576,483 +787,22 @@ const Admin = () => {
                           handleAddSkill();
                         }
                       }}
+                      className="bg-white/5 border-white/10 text-white"
                     />
-                    <Button onClick={handleAddSkill}>Add</Button>
+                    <Button 
+                      onClick={handleAddSkill}
+                      className="bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none"
+                    >
+                      Add
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
             
             <TabsContent value="blog" className="space-y-6">
-              <Card>
+              <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>Blog Posts</CardTitle>
-                    <CardDescription>
-                      Manage your blog posts and articles.
-                    </CardDescription>
-                  </div>
-                  <Button onClick={resetBlogForm}>
-                    Add New Post
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="rounded-md border">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b bg-muted/50">
-                            <th className="px-4 py-3 text-left font-medium">Title</th>
-                            <th className="px-4 py-3 text-left font-medium">Status</th>
-                            <th className="px-4 py-3 text-right font-medium">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {siteData.blogPosts.map((blog) => (
-                            <tr key={blog.id} className="border-b">
-                              <td className="px-4 py-3">{blog.title}</td>
-                              <td className="px-4 py-3">
-                                <Select 
-                                  defaultValue={blog.status} 
-                                  onValueChange={(value: "Published" | "Draft") => handleBlogStatusChange(blog.id, value)}
-                                >
-                                  <SelectTrigger className="w-32">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Published">Published</SelectItem>
-                                    <SelectItem value="Draft">Draft</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </td>
-                              <td className="px-4 py-3 text-right">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="mr-2"
-                                  onClick={() => handleEditBlog(blog)}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="destructive" 
-                                  size="sm"
-                                  onClick={() => handleDeleteBlog(blog.id)}
-                                >
-                                  Delete
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>{editingBlogId ? "Edit Blog Post" : "Create New Blog Post"}</CardTitle>
-                  <CardDescription>
-                    {editingBlogId ? "Update your blog post content." : "Create a new blog post."}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="post-title">Post Title</Label>
-                    <Input 
-                      id="post-title" 
-                      placeholder="Enter post title" 
-                      value={newBlogTitle}
-                      onChange={(e) => setNewBlogTitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="post-category">Category</Label>
-                      <Select 
-                        value={newBlogCategory}
-                        onValueChange={setNewBlogCategory}
-                      >
-                        <SelectTrigger id="post-category">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="DevOps">DevOps</SelectItem>
-                          <SelectItem value="Kubernetes">Kubernetes</SelectItem>
-                          <SelectItem value="Cloud">Cloud Computing</SelectItem>
-                          <SelectItem value="Automation">Automation</SelectItem>
-                          <SelectItem value="Docker">Docker</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="post-date">Publish Date</Label>
-                      <Input 
-                        id="post-date" 
-                        type="date" 
-                        value={newBlogDate}
-                        onChange={(e) => setNewBlogDate(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="post-excerpt">Post Excerpt</Label>
-                    <Textarea 
-                      id="post-excerpt" 
-                      className="min-h-20"
-                      placeholder="A short summary of your post (shown in previews)"
-                      value={newBlogExcerpt}
-                      onChange={(e) => setNewBlogExcerpt(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="post-content">Post Content</Label>
-                    <Textarea 
-                      id="post-content" 
-                      className="min-h-80"
-                      placeholder="Write your blog post content here..."
-                      value={newBlogContent}
-                      onChange={(e) => setNewBlogContent(e.target.value)}
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button variant="outline" onClick={resetBlogForm}>Cancel</Button>
-                  <Button onClick={handleSaveBlog}>
-                    {editingBlogId ? "Update Post" : "Save Post"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="videos" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Video Resume</CardTitle>
-                    <CardDescription>
-                      Manage your video resume content.
-                    </CardDescription>
-                  </div>
-                  <Button onClick={resetVideoForm}>
-                    Add New Video
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="rounded-md border">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b bg-muted/50">
-                            <th className="px-4 py-3 text-left font-medium">Title</th>
-                            <th className="px-4 py-3 text-left font-medium">Platform</th>
-                            <th className="px-4 py-3 text-right font-medium">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {siteData.videos.map((video) => (
-                            <tr key={video.id} className="border-b">
-                              <td className="px-4 py-3">{video.title}</td>
-                              <td className="px-4 py-3">{video.platform}</td>
-                              <td className="px-4 py-3 text-right">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="mr-2"
-                                  onClick={() => handleEditVideo(video)}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="destructive" 
-                                  size="sm"
-                                  onClick={() => handleDeleteVideo(video.id)}
-                                >
-                                  Delete
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>{editingVideoId ? "Edit Video" : "Add New Video"}</CardTitle>
-                  <CardDescription>
-                    {editingVideoId ? "Update video information." : "Add a new video to your resume."}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="video-title">Video Title</Label>
-                    <Input 
-                      id="video-title" 
-                      placeholder="Enter video title" 
-                      value={newVideoTitle}
-                      onChange={(e) => setNewVideoTitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="video-platform">Platform</Label>
-                      <Select 
-                        value={newVideoPlatform}
-                        onValueChange={(value: "youtube" | "vimeo") => setNewVideoPlatform(value)}
-                      >
-                        <SelectTrigger id="video-platform">
-                          <SelectValue placeholder="Select platform" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="youtube">YouTube</SelectItem>
-                          <SelectItem value="vimeo">Vimeo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="video-url">Embed URL</Label>
-                      <Input 
-                        id="video-url" 
-                        placeholder="e.g., https://www.youtube.com/embed/VIDEO_ID" 
-                        value={newVideoEmbedUrl}
-                        onChange={(e) => setNewVideoEmbedUrl(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="video-description">Description</Label>
-                    <Textarea 
-                      id="video-description" 
-                      className="min-h-20"
-                      placeholder="Describe what this video is about..."
-                      value={newVideoDescription}
-                      onChange={(e) => setNewVideoDescription(e.target.value)}
-                    />
-                  </div>
-                  {newVideoEmbedUrl && (
-                    <div className="pt-4">
-                      <Label>Video Preview</Label>
-                      <div className="mt-2 border rounded-md overflow-hidden">
-                        <div className="aspect-video">
-                          <iframe 
-                            src={newVideoEmbedUrl}
-                            title="Video Preview"
-                            className="w-full h-full"
-                            allowFullScreen
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button variant="outline" onClick={resetVideoForm}>Cancel</Button>
-                  <Button onClick={handleSaveVideo}>
-                    {editingVideoId ? "Update Video" : "Save Video"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="users" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>User Accounts</CardTitle>
-                    <CardDescription>
-                      Manage user accounts for your website.
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="rounded-md border">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b bg-muted/50">
-                            <th className="px-4 py-3 text-left font-medium">Name</th>
-                            <th className="px-4 py-3 text-left font-medium">Email</th>
-                            <th className="px-4 py-3 text-left font-medium">Role</th>
-                            <th className="px-4 py-3 text-right font-medium">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {users.map((user) => (
-                            <tr key={user.id} className="border-b">
-                              <td className="px-4 py-3">{user.name}</td>
-                              <td className="px-4 py-3">{user.email}</td>
-                              <td className="px-4 py-3">{user.role}</td>
-                              <td className="px-4 py-3 text-right">
-                                <Button variant="outline" size="sm" className="mr-2">
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="destructive" 
-                                  size="sm"
-                                  onClick={() => handleDeleteUser(user.id)}
-                                >
-                                  Delete
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create New User</CardTitle>
-                  <CardDescription>
-                    Add a new user account.
-                  </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleAddUser}>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="user-name">Full Name</Label>
-                      <Input 
-                        id="user-name" 
-                        placeholder="Enter user's full name" 
-                        value={newUserName}
-                        onChange={(e) => setNewUserName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="user-email">Email</Label>
-                        <Input 
-                          id="user-email" 
-                          type="email" 
-                          placeholder="user@example.com" 
-                          value={newUserEmail}
-                          onChange={(e) => setNewUserEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="user-password">Password</Label>
-                        <Input 
-                          id="user-password" 
-                          type="password" 
-                          placeholder="Create a secure password" 
-                          value={newUserPassword}
-                          onChange={(e) => setNewUserPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="user-role">Role</Label>
-                      <Select 
-                        value={newUserRole} 
-                        onValueChange={setNewUserRole}
-                      >
-                        <SelectTrigger id="user-role">
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Admin">Admin</SelectItem>
-                          <SelectItem value="Editor">Editor</SelectItem>
-                          <SelectItem value="Viewer">Viewer</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button type="submit">Create User</Button>
-                  </CardFooter>
-                </form>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="settings" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Website Settings</CardTitle>
-                  <CardDescription>
-                    Manage general settings for your website.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="siteTitle">Site Title</Label>
-                    <Input 
-                      id="siteTitle" 
-                      value={siteTitle}
-                      onChange={(e) => setSiteTitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="siteDescription">Site Description</Label>
-                    <Input 
-                      id="siteDescription" 
-                      value={siteDescription}
-                      onChange={(e) => setSiteDescription(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="keywords">SEO Keywords</Label>
-                    <Input 
-                      id="keywords" 
-                      value={seoKeywords}
-                      onChange={(e) => setSeoKeywords(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="heroVideoUrl">Hero Video URL (YouTube or Vimeo embed)</Label>
-                    <Input 
-                      id="heroVideoUrl" 
-                      value={heroVideoUrl}
-                      onChange={(e) => setHeroVideoUrl(e.target.value)}
-                      placeholder="https://www.youtube.com/embed/VIDEO_ID"
-                    />
-                  </div>
-                  <div className="space-y-4 pt-2">
-                    <h3 className="text-lg font-medium">WhatsApp Group</h3>
-                    <div className="flex items-center space-x-2">
-                      <input 
-                        type="checkbox" 
-                        id="showWhatsappSection" 
-                        className="mr-1"
-                        checked={showWhatsappSection}
-                        onChange={(e) => setShowWhatsappSection(e.target.checked)}
-                      />
-                      <Label htmlFor="showWhatsappSection">Show WhatsApp Group Section</Label>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="whatsappLink">WhatsApp Group Link</Label>
-                      <Input 
-                        id="whatsappLink" 
-                        value={whatsappLink}
-                        onChange={(e) => setWhatsappLink(e.target.value)}
-                        placeholder="https://whatsapp.com/group/example"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button onClick={handleSaveSettings}>
-                    Save Settings
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </main>
-      </div>
-    </div>
-  );
-};
-
-export default Admin;
+                    <CardDescription className="text-white/70">
