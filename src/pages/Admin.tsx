@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,30 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Briefcase, FileText, Image, Settings, User, BookOpen, Globe, Video, Users } from "lucide-react";
+import { Briefcase, FileText, Image, Settings, User, BookOpen, Globe, Video, Users, Whatsapp } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSiteData, type BlogPost, type VideoItem } from "@/context/SiteDataContext";
 
 const Admin = () => {
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // Blog management states
-  const [blogs, setBlogs] = useState([
-    { id: 1, title: "Getting Started with DevOps", status: "Published" },
-    { id: 2, title: "Kubernetes for Beginners", status: "Published" },
-    { id: 3, title: "CI/CD Pipeline Automation", status: "Published" },
-    { id: 4, title: "Docker Container Orchestration", status: "Draft" },
-  ]);
-  
-  // Video resume management states
-  const [videos, setVideos] = useState([
-    { id: 1, title: "My DevOps Journey", platform: "YouTube", embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-    { id: 2, title: "Cloud Infrastructure Skills", platform: "Vimeo", embedUrl: "https://player.vimeo.com/video/76979871" },
-    { id: 3, title: "Kubernetes & Container Orchestration", platform: "YouTube", embedUrl: "https://www.youtube.com/embed/PH-2FfFD2PU" },
-  ]);
+  const { siteData, updatePersonalInfo, updateBlogPosts, addBlogPost, updateBlogPost, deleteBlogPost, 
+          updateVideos, addVideo, updateVideo, deleteVideo, updateSiteSettings } = useSiteData();
 
   // User management states
   const [users, setUsers] = useState([
@@ -42,6 +31,59 @@ const Admin = () => {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
   const [newUserRole, setNewUserRole] = useState("Editor");
+
+  // Blog form states
+  const [newBlogTitle, setNewBlogTitle] = useState("");
+  const [newBlogExcerpt, setNewBlogExcerpt] = useState("");
+  const [newBlogCategory, setNewBlogCategory] = useState("DevOps");
+  const [newBlogContent, setNewBlogContent] = useState("");
+  const [newBlogDate, setNewBlogDate] = useState("");
+  const [editingBlogId, setEditingBlogId] = useState<number | null>(null);
+
+  // Video form states
+  const [newVideoTitle, setNewVideoTitle] = useState("");
+  const [newVideoDescription, setNewVideoDescription] = useState("");
+  const [newVideoPlatform, setNewVideoPlatform] = useState<"youtube" | "vimeo">("youtube");
+  const [newVideoEmbedUrl, setNewVideoEmbedUrl] = useState("");
+  const [editingVideoId, setEditingVideoId] = useState<number | null>(null);
+
+  // Settings form states
+  const [whatsappLink, setWhatsappLink] = useState(siteData.siteSettings.whatsappLink);
+  const [showWhatsappSection, setShowWhatsappSection] = useState(siteData.siteSettings.showWhatsappSection);
+  const [heroVideoUrl, setHeroVideoUrl] = useState(siteData.siteSettings.heroVideoUrl);
+  const [siteTitle, setSiteTitle] = useState(siteData.siteSettings.siteTitle);
+  const [siteDescription, setSiteDescription] = useState(siteData.siteSettings.siteDescription);
+  const [seoKeywords, setSeoKeywords] = useState(siteData.siteSettings.seoKeywords);
+
+  // Personal info form states
+  const [name, setName] = useState(siteData.personalInfo.name);
+  const [jobTitle, setJobTitle] = useState(siteData.personalInfo.jobTitle);
+  const [bio, setBio] = useState(siteData.personalInfo.bio);
+  const [location, setLocation] = useState(siteData.personalInfo.location);
+  const [personalEmail, setPersonalEmail] = useState(siteData.personalInfo.email);
+  const [profileImageUrl, setProfileImageUrl] = useState(siteData.personalInfo.profileImageUrl);
+  const [resumeUrl, setResumeUrl] = useState(siteData.personalInfo.resumeUrl);
+  const [skills, setSkills] = useState<string[]>(siteData.personalInfo.skills);
+  const [newSkill, setNewSkill] = useState("");
+
+  useEffect(() => {
+    // Update states when siteData changes
+    setWhatsappLink(siteData.siteSettings.whatsappLink);
+    setShowWhatsappSection(siteData.siteSettings.showWhatsappSection);
+    setHeroVideoUrl(siteData.siteSettings.heroVideoUrl);
+    setSiteTitle(siteData.siteSettings.siteTitle);
+    setSiteDescription(siteData.siteSettings.siteDescription);
+    setSeoKeywords(siteData.siteSettings.seoKeywords);
+    
+    setName(siteData.personalInfo.name);
+    setJobTitle(siteData.personalInfo.jobTitle);
+    setBio(siteData.personalInfo.bio);
+    setLocation(siteData.personalInfo.location);
+    setPersonalEmail(siteData.personalInfo.email);
+    setProfileImageUrl(siteData.personalInfo.profileImageUrl);
+    setResumeUrl(siteData.personalInfo.resumeUrl);
+    setSkills(siteData.personalInfo.skills);
+  }, [siteData]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,44 +107,119 @@ const Admin = () => {
 
   // Blog management functions
   const handleDeleteBlog = (id: number) => {
-    setBlogs(blogs.filter(blog => blog.id !== id));
-    toast({
-      title: "Blog deleted",
-      description: "The blog post has been deleted successfully",
-    });
+    deleteBlogPost(id);
   };
 
-  const handleBlogStatusChange = (id: number, status: string) => {
-    setBlogs(blogs.map(blog => 
-      blog.id === id ? { ...blog, status } : blog
-    ));
-    toast({
-      title: "Status updated",
-      description: `Blog status has been changed to ${status}`,
-    });
+  const handleBlogStatusChange = (id: number, status: "Published" | "Draft") => {
+    updateBlogPost(id, { status });
+  };
+
+  const handleEditBlog = (blog: BlogPost) => {
+    setEditingBlogId(blog.id);
+    setNewBlogTitle(blog.title);
+    setNewBlogExcerpt(blog.excerpt);
+    setNewBlogCategory(blog.category);
+    setNewBlogContent(blog.content);
+    setNewBlogDate(blog.date);
+  };
+
+  const handleSaveBlog = () => {
+    if (!newBlogTitle || !newBlogExcerpt || !newBlogCategory || !newBlogContent) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required blog fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (editingBlogId) {
+      // Update existing blog
+      updateBlogPost(editingBlogId, {
+        title: newBlogTitle,
+        excerpt: newBlogExcerpt,
+        category: newBlogCategory,
+        content: newBlogContent,
+        date: newBlogDate || today
+      });
+    } else {
+      // Add new blog
+      addBlogPost({
+        title: newBlogTitle,
+        excerpt: newBlogExcerpt,
+        category: newBlogCategory,
+        content: newBlogContent,
+        date: newBlogDate || today,
+        status: "Draft"
+      });
+    }
+    
+    // Clear form
+    resetBlogForm();
+  };
+
+  const resetBlogForm = () => {
+    setEditingBlogId(null);
+    setNewBlogTitle("");
+    setNewBlogExcerpt("");
+    setNewBlogCategory("DevOps");
+    setNewBlogContent("");
+    setNewBlogDate("");
   };
 
   // Video management functions
   const handleDeleteVideo = (id: number) => {
-    setVideos(videos.filter(video => video.id !== id));
-    toast({
-      title: "Video deleted",
-      description: "The video has been deleted successfully",
-    });
+    deleteVideo(id);
   };
 
-  const handleAddVideo = () => {
-    const newId = Math.max(...videos.map(v => v.id), 0) + 1;
-    setVideos([...videos, { 
-      id: newId, 
-      title: "New Video", 
-      platform: "YouTube", 
-      embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" 
-    }]);
-    toast({
-      title: "Video added",
-      description: "A new video has been added. Please update its details.",
-    });
+  const handleEditVideo = (video: VideoItem) => {
+    setEditingVideoId(video.id);
+    setNewVideoTitle(video.title);
+    setNewVideoDescription(video.description);
+    setNewVideoPlatform(video.platform);
+    setNewVideoEmbedUrl(video.embedUrl);
+  };
+
+  const handleSaveVideo = () => {
+    if (!newVideoTitle || !newVideoDescription || !newVideoEmbedUrl) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required video fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (editingVideoId) {
+      // Update existing video
+      updateVideo(editingVideoId, {
+        title: newVideoTitle,
+        description: newVideoDescription,
+        platform: newVideoPlatform,
+        embedUrl: newVideoEmbedUrl
+      });
+    } else {
+      // Add new video
+      addVideo({
+        title: newVideoTitle,
+        description: newVideoDescription,
+        platform: newVideoPlatform,
+        embedUrl: newVideoEmbedUrl
+      });
+    }
+    
+    // Clear form
+    resetVideoForm();
+  };
+
+  const resetVideoForm = () => {
+    setEditingVideoId(null);
+    setNewVideoTitle("");
+    setNewVideoDescription("");
+    setNewVideoPlatform("youtube");
+    setNewVideoEmbedUrl("");
   };
 
   // User management functions
@@ -144,6 +261,54 @@ const Admin = () => {
       title: "User deleted",
       description: "The user has been deleted successfully",
     });
+  };
+
+  // Settings management functions
+  const handleSaveSettings = () => {
+    updateSiteSettings({
+      whatsappLink,
+      showWhatsappSection,
+      heroVideoUrl,
+      siteTitle,
+      siteDescription,
+      seoKeywords
+    });
+    
+    toast({
+      title: "Settings saved",
+      description: "Your site settings have been updated",
+    });
+  };
+
+  // Personal info management functions
+  const handleSavePersonalInfo = () => {
+    updatePersonalInfo({
+      name,
+      jobTitle,
+      bio,
+      location,
+      email: personalEmail,
+      profileImageUrl,
+      resumeUrl,
+      skills
+    });
+    
+    toast({
+      title: "Profile updated",
+      description: "Your profile has been updated successfully",
+    });
+  };
+
+  const handleAddSkill = () => {
+    if (newSkill && !skills.includes(newSkill)) {
+      const updatedSkills = [...skills, newSkill];
+      setSkills(updatedSkills);
+      setNewSkill("");
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setSkills(skills.filter(skill => skill !== skillToRemove));
   };
 
   if (!isAuthenticated) {
@@ -273,7 +438,7 @@ const Admin = () => {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{blogs.length}</div>
+                <div className="text-2xl font-bold">{siteData.blogPosts.length}</div>
                 <p className="text-xs text-muted-foreground">Last post 3 days ago</p>
               </CardContent>
             </Card>
@@ -283,7 +448,7 @@ const Admin = () => {
                 <Video className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{videos.length}</div>
+                <div className="text-2xl font-bold">{siteData.videos.length}</div>
                 <p className="text-xs text-muted-foreground">Last video added 1 week ago</p>
               </CardContent>
             </Card>
@@ -310,19 +475,54 @@ const Admin = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="fullName">Full Name</Label>
-                      <Input id="fullName" defaultValue="Shubham Sahare" />
+                      <Input 
+                        id="fullName" 
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="jobTitle">Job Title</Label>
-                      <Input id="jobTitle" defaultValue="DevOps Engineer" />
+                      <Input 
+                        id="jobTitle" 
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" defaultValue="shubham.sahare@example.com" />
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        value={personalEmail}
+                        onChange={(e) => setPersonalEmail(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="location">Location</Label>
-                      <Input id="location" defaultValue="Mumbai, India" />
+                      <Input 
+                        id="location" 
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="profileImage">Profile Image URL</Label>
+                      <Input 
+                        id="profileImage" 
+                        value={profileImageUrl}
+                        onChange={(e) => setProfileImageUrl(e.target.value)}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="resumeUrl">Resume URL (PDF)</Label>
+                      <Input 
+                        id="resumeUrl" 
+                        value={resumeUrl}
+                        onChange={(e) => setResumeUrl(e.target.value)}
+                        placeholder="https://example.com/resume.pdf"
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -330,17 +530,13 @@ const Admin = () => {
                     <Textarea 
                       id="bio" 
                       className="min-h-32"
-                      defaultValue="Hello! I'm Shubham, a passionate DevOps engineer with expertise in cloud infrastructure, CI/CD pipelines, and container orchestration. I specialize in building robust, scalable, and automated deployment systems."
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
                     />
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    onClick={() => toast({
-                      title: "Profile updated",
-                      description: "Your profile has been updated successfully",
-                    })}
-                  >
+                  <Button onClick={handleSavePersonalInfo}>
                     Save Changes
                   </Button>
                 </CardFooter>
@@ -355,16 +551,33 @@ const Admin = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {["Kubernetes", "Docker", "AWS", "CI/CD", "Terraform", "Ansible", "Jenkins", "Git", "Linux", "Monitoring"].map((skill) => (
+                    {skills.map((skill) => (
                       <div key={skill} className="flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
                         {skill}
-                        <Button variant="ghost" size="icon" className="h-4 w-4 p-0">×</Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-4 w-4 p-0"
+                          onClick={() => handleRemoveSkill(skill)}
+                        >
+                          ×
+                        </Button>
                       </div>
                     ))}
                   </div>
                   <div className="mt-4 flex gap-2">
-                    <Input placeholder="Add new skill..." />
-                    <Button>Add</Button>
+                    <Input 
+                      placeholder="Add new skill..." 
+                      value={newSkill}
+                      onChange={(e) => setNewSkill(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddSkill();
+                        }
+                      }}
+                    />
+                    <Button onClick={handleAddSkill}>Add</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -379,7 +592,7 @@ const Admin = () => {
                       Manage your blog posts and articles.
                     </CardDescription>
                   </div>
-                  <Button>
+                  <Button onClick={resetBlogForm}>
                     Add New Post
                   </Button>
                 </CardHeader>
@@ -395,11 +608,14 @@ const Admin = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {blogs.map((blog) => (
+                          {siteData.blogPosts.map((blog) => (
                             <tr key={blog.id} className="border-b">
                               <td className="px-4 py-3">{blog.title}</td>
                               <td className="px-4 py-3">
-                                <Select defaultValue={blog.status} onValueChange={(value) => handleBlogStatusChange(blog.id, value)}>
+                                <Select 
+                                  defaultValue={blog.status} 
+                                  onValueChange={(value: "Published" | "Draft") => handleBlogStatusChange(blog.id, value)}
+                                >
                                   <SelectTrigger className="w-32">
                                     <SelectValue />
                                   </SelectTrigger>
@@ -410,7 +626,12 @@ const Admin = () => {
                                 </Select>
                               </td>
                               <td className="px-4 py-3 text-right">
-                                <Button variant="outline" size="sm" className="mr-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="mr-2"
+                                  onClick={() => handleEditBlog(blog)}
+                                >
                                   Edit
                                 </Button>
                                 <Button 
@@ -432,36 +653,59 @@ const Admin = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Blog Editor</CardTitle>
+                  <CardTitle>{editingBlogId ? "Edit Blog Post" : "Create New Blog Post"}</CardTitle>
                   <CardDescription>
-                    Create or edit blog posts.
+                    {editingBlogId ? "Update your blog post content." : "Create a new blog post."}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="post-title">Post Title</Label>
-                    <Input id="post-title" placeholder="Enter post title" />
+                    <Input 
+                      id="post-title" 
+                      placeholder="Enter post title" 
+                      value={newBlogTitle}
+                      onChange={(e) => setNewBlogTitle(e.target.value)}
+                    />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="post-category">Category</Label>
-                      <Select>
+                      <Select 
+                        value={newBlogCategory}
+                        onValueChange={setNewBlogCategory}
+                      >
                         <SelectTrigger id="post-category">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="devops">DevOps</SelectItem>
-                          <SelectItem value="kubernetes">Kubernetes</SelectItem>
-                          <SelectItem value="cloud">Cloud Computing</SelectItem>
-                          <SelectItem value="automation">Automation</SelectItem>
-                          <SelectItem value="docker">Docker</SelectItem>
+                          <SelectItem value="DevOps">DevOps</SelectItem>
+                          <SelectItem value="Kubernetes">Kubernetes</SelectItem>
+                          <SelectItem value="Cloud">Cloud Computing</SelectItem>
+                          <SelectItem value="Automation">Automation</SelectItem>
+                          <SelectItem value="Docker">Docker</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="post-date">Publish Date</Label>
-                      <Input id="post-date" type="date" />
+                      <Input 
+                        id="post-date" 
+                        type="date" 
+                        value={newBlogDate}
+                        onChange={(e) => setNewBlogDate(e.target.value)}
+                      />
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="post-excerpt">Post Excerpt</Label>
+                    <Textarea 
+                      id="post-excerpt" 
+                      className="min-h-20"
+                      placeholder="A short summary of your post (shown in previews)"
+                      value={newBlogExcerpt}
+                      onChange={(e) => setNewBlogExcerpt(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="post-content">Post Content</Label>
@@ -469,12 +713,16 @@ const Admin = () => {
                       id="post-content" 
                       className="min-h-80"
                       placeholder="Write your blog post content here..."
+                      value={newBlogContent}
+                      onChange={(e) => setNewBlogContent(e.target.value)}
                     />
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <Button variant="outline">Save as Draft</Button>
-                  <Button>Publish Post</Button>
+                  <Button variant="outline" onClick={resetBlogForm}>Cancel</Button>
+                  <Button onClick={handleSaveBlog}>
+                    {editingBlogId ? "Update Post" : "Save Post"}
+                  </Button>
                 </CardFooter>
               </Card>
             </TabsContent>
@@ -488,7 +736,7 @@ const Admin = () => {
                       Manage your video resume content.
                     </CardDescription>
                   </div>
-                  <Button onClick={handleAddVideo}>
+                  <Button onClick={resetVideoForm}>
                     Add New Video
                   </Button>
                 </CardHeader>
@@ -504,12 +752,17 @@ const Admin = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {videos.map((video) => (
+                          {siteData.videos.map((video) => (
                             <tr key={video.id} className="border-b">
                               <td className="px-4 py-3">{video.title}</td>
                               <td className="px-4 py-3">{video.platform}</td>
                               <td className="px-4 py-3 text-right">
-                                <Button variant="outline" size="sm" className="mr-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="mr-2"
+                                  onClick={() => handleEditVideo(video)}
+                                >
                                   Edit
                                 </Button>
                                 <Button 
@@ -531,20 +784,28 @@ const Admin = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Video Editor</CardTitle>
+                  <CardTitle>{editingVideoId ? "Edit Video" : "Add New Video"}</CardTitle>
                   <CardDescription>
-                    Add or edit video information.
+                    {editingVideoId ? "Update video information." : "Add a new video to your resume."}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="video-title">Video Title</Label>
-                    <Input id="video-title" placeholder="Enter video title" />
+                    <Input 
+                      id="video-title" 
+                      placeholder="Enter video title" 
+                      value={newVideoTitle}
+                      onChange={(e) => setNewVideoTitle(e.target.value)}
+                    />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="video-platform">Platform</Label>
-                      <Select>
+                      <Select 
+                        value={newVideoPlatform}
+                        onValueChange={(value: "youtube" | "vimeo") => setNewVideoPlatform(value)}
+                      >
                         <SelectTrigger id="video-platform">
                           <SelectValue placeholder="Select platform" />
                         </SelectTrigger>
@@ -556,7 +817,12 @@ const Admin = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="video-url">Embed URL</Label>
-                      <Input id="video-url" placeholder="e.g., https://www.youtube.com/embed/VIDEO_ID" />
+                      <Input 
+                        id="video-url" 
+                        placeholder="e.g., https://www.youtube.com/embed/VIDEO_ID" 
+                        value={newVideoEmbedUrl}
+                        onChange={(e) => setNewVideoEmbedUrl(e.target.value)}
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -565,19 +831,31 @@ const Admin = () => {
                       id="video-description" 
                       className="min-h-20"
                       placeholder="Describe what this video is about..."
+                      value={newVideoDescription}
+                      onChange={(e) => setNewVideoDescription(e.target.value)}
                     />
                   </div>
-                  <div className="pt-4">
-                    <Label>Video Preview</Label>
-                    <div className="mt-2 border rounded-md p-4 flex items-center justify-center bg-muted/50 aspect-video">
-                      <div className="text-muted-foreground">
-                        Preview will appear here once you save the video
+                  {newVideoEmbedUrl && (
+                    <div className="pt-4">
+                      <Label>Video Preview</Label>
+                      <div className="mt-2 border rounded-md overflow-hidden">
+                        <div className="aspect-video">
+                          <iframe 
+                            src={newVideoEmbedUrl}
+                            title="Video Preview"
+                            className="w-full h-full"
+                            allowFullScreen
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
-                <CardFooter>
-                  <Button>Save Video</Button>
+                <CardFooter className="flex justify-between">
+                  <Button variant="outline" onClick={resetVideoForm}>Cancel</Button>
+                  <Button onClick={handleSaveVideo}>
+                    {editingVideoId ? "Update Video" : "Save Video"}
+                  </Button>
                 </CardFooter>
               </Card>
             </TabsContent>
@@ -709,62 +987,64 @@ const Admin = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="siteTitle">Site Title</Label>
-                    <Input id="siteTitle" defaultValue="Shubham Sahare - DevOps Engineer" />
+                    <Input 
+                      id="siteTitle" 
+                      value={siteTitle}
+                      onChange={(e) => setSiteTitle(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="siteDescription">Site Description</Label>
                     <Input 
                       id="siteDescription" 
-                      defaultValue="Personal portfolio and resume website for Shubham Sahare" 
+                      value={siteDescription}
+                      onChange={(e) => setSiteDescription(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="keywords">SEO Keywords</Label>
                     <Input 
                       id="keywords" 
-                      defaultValue="devops, cloud, kubernetes, docker, CI/CD, automation, infrastructure, engineer" 
+                      value={seoKeywords}
+                      onChange={(e) => setSeoKeywords(e.target.value)}
                     />
                   </div>
-                  <div className="flex items-center space-x-2 pt-2">
-                    <input type="checkbox" id="darkMode" className="mr-1" />
-                    <Label htmlFor="darkMode">Enable Dark Mode by Default</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="heroVideoUrl">Hero Video URL (YouTube or Vimeo embed)</Label>
+                    <Input 
+                      id="heroVideoUrl" 
+                      value={heroVideoUrl}
+                      onChange={(e) => setHeroVideoUrl(e.target.value)}
+                      placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                    />
+                  </div>
+                  <div className="space-y-4 pt-2">
+                    <h3 className="text-lg font-medium">WhatsApp Group</h3>
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        id="showWhatsappSection" 
+                        className="mr-1"
+                        checked={showWhatsappSection}
+                        onChange={(e) => setShowWhatsappSection(e.target.checked)}
+                      />
+                      <Label htmlFor="showWhatsappSection">Show WhatsApp Group Section</Label>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="whatsappLink">WhatsApp Group Link</Label>
+                      <Input 
+                        id="whatsappLink" 
+                        value={whatsappLink}
+                        onChange={(e) => setWhatsappLink(e.target.value)}
+                        placeholder="https://whatsapp.com/group/example"
+                      />
+                    </div>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    onClick={() => toast({
-                      title: "Settings saved",
-                      description: "Your website settings have been updated",
-                    })}
-                  >
+                  <Button onClick={handleSaveSettings}>
                     Save Settings
                   </Button>
-                </CardFooter>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Security</CardTitle>
-                  <CardDescription>
-                    Update your password and security settings.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" type="password" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" type="password" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input id="confirmPassword" type="password" />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button>Change Password</Button>
                 </CardFooter>
               </Card>
             </TabsContent>

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   NavigationMenu,
@@ -13,10 +13,34 @@ import {
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSiteData } from "@/context/SiteDataContext";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
+  const { siteData } = useSiteData();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Close mobile menu when route changes
+    const handleRouteChange = () => {
+      setIsMenuOpen(false);
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -25,8 +49,8 @@ const Navigation = () => {
   return (
     <div className="w-full relative z-30">
       {/* Mobile menu toggle */}
-      <div className="flex md:hidden justify-between items-center p-4 bg-background/80 backdrop-blur-sm">
-        <Link to="/" className="text-xl font-bold">Shubham Sahare</Link>
+      <div className={`flex md:hidden justify-between items-center p-4 ${isScrolled ? "bg-background/80 backdrop-blur-sm" : ""}`}>
+        <Link to="/" className="text-xl font-bold">{siteData.personalInfo.name}</Link>
         <Button 
           variant="ghost" 
           size="icon" 
@@ -76,7 +100,7 @@ const Navigation = () => {
 
       {/* Desktop menu */}
       <NavigationMenu className="hidden md:flex max-w-full justify-between mx-auto p-4">
-        <Link to="/" className="text-xl font-bold mr-10">Shubham Sahare</Link>
+        <Link to="/" className="text-xl font-bold mr-10">{siteData.personalInfo.name}</Link>
         <NavigationMenuList className="gap-2">
           <NavigationMenuItem>
             <Link to="/">

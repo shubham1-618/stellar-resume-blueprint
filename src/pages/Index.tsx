@@ -1,16 +1,20 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { Linkedin, Github, Mail, FileText, Calendar, ChevronDown, Code, Terminal, Server, Database, Cloud, Download, ExternalLink, BookOpen, Cpu } from "lucide-react";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import { Linkedin, Github, Mail, FileText, Calendar, ChevronDown, Code, Terminal, Server, Database, Cloud, Download, ExternalLink, BookOpen, Cpu, Whatsapp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ParticleBackground from "@/components/ParticleBackground";
+import Navigation from "@/components/Navigation";
+import { useSiteData } from "@/context/SiteDataContext";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
   const { toast } = useToast();
+  const { siteData } = useSiteData();
+  
   const sectionRefs = {
     home: useRef(null),
     about: useRef(null),
@@ -45,11 +49,19 @@ const Index = () => {
   }, []);
 
   const handleDownloadResume = () => {
-    toast({
-      title: "Resume Download",
-      description: "Your resume is being downloaded",
-    });
-    // In a real app, add actual download functionality here
+    if (siteData.personalInfo.resumeUrl) {
+      window.open(siteData.personalInfo.resumeUrl, '_blank');
+      toast({
+        title: "Resume Download",
+        description: "Your resume is being downloaded",
+      });
+    } else {
+      toast({
+        title: "Resume Not Available",
+        description: "Resume download link not configured",
+        variant: "destructive"
+      });
+    }
   };
 
   const toggleMute = () => {
@@ -66,56 +78,31 @@ const Index = () => {
     }
   };
 
+  // Filter published blog posts for the Latest Articles section
+  const publishedPosts = siteData.blogPosts.filter(post => post.status === "Published").slice(0, 3);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white overflow-x-hidden">
-      {/* Navigation Bar */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-black/80 backdrop-blur-lg" : "bg-transparent"}`}>
-        <div className="container flex items-center justify-between h-20 px-4 md:px-6">
-          <a href="#" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">
-            Shubham Sahare
-          </a>
-          <NavigationMenu className="hidden md:flex">
-            <NavigationMenuList>
-              {Object.keys(sectionRefs).map((section) => (
-                <NavigationMenuItem key={section}>
-                  <NavigationMenuLink 
-                    onClick={() => scrollToSection(section)}
-                    className={`${navigationMenuTriggerStyle()} cursor-pointer ${activeSection === section ? "bg-white/10" : ""}`}
-                  >
-                    {section.charAt(0).toUpperCase() + section.slice(1)}
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
-          <div className="md:hidden">
-            {/* Mobile menu button - to be implemented with a proper dropdown */}
-            <Button variant="ghost" size="icon">
-              <ChevronDown className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Hero Section */}
       <section id="home" ref={sectionRefs.home} className="relative flex flex-col items-center justify-center min-h-screen pt-16 overflow-hidden">
         <ParticleBackground />
         <div className="absolute inset-0 z-0">
-          {/* Video background - replace with actual video */}
-          <div className="bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#9b87f5]/20 absolute inset-0 z-0"></div>
-          <video 
-            className="w-full h-full object-cover" 
-            autoPlay 
-            loop 
-            muted={isMuted}
-            playsInline
-          >
-            <source src="https://cdn.example.com/your-resume-video.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          {/* Video background - if configured */}
+          <div className="bg-gradient-to-br from-[#1A1F2C]/80 via-[#7E69AB]/30 to-[#9b87f5]/20 absolute inset-0 z-10"></div>
+          {siteData.siteSettings.heroVideoUrl && (
+            <iframe 
+              className="w-full h-full object-cover" 
+              src={`${siteData.siteSettings.heroVideoUrl}${isMuted ? '?mute=1' : ''}`}
+              title="Background Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          )}
           <button 
             onClick={toggleMute} 
-            className="absolute bottom-4 right-4 z-10 bg-black/30 p-2 rounded-full hover:bg-black/50 transition-colors"
+            className="absolute bottom-4 right-4 z-20 bg-black/30 p-2 rounded-full hover:bg-black/50 transition-colors"
           >
             {isMuted ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,11 +119,11 @@ const Index = () => {
         <div className="container relative z-10 px-4 text-center">
           <div className="animate-fade-in">
             <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">
-              Shubham Sahare
+              {siteData.personalInfo.name}
             </h1>
-            <p className="text-xl md:text-2xl text-white/90 mb-4">DevOps Engineer & Cloud Infrastructure Specialist</p>
+            <p className="text-xl md:text-2xl text-white/90 mb-4">{siteData.personalInfo.jobTitle}</p>
             <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8">
-              Automating, scaling, and securing infrastructure with a passion for CI/CD, Kubernetes, and cloud-native technologies.
+              {siteData.personalInfo.bio}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button onClick={handleDownloadResume} className="rounded-full px-8 bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] hover:from-[#7E69AB] hover:to-[#9b87f5] border-none transition-all duration-300 transform hover:scale-105">
@@ -150,15 +137,20 @@ const Index = () => {
             </div>
             
             <div className="mt-12 flex justify-center space-x-4">
-              <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 bg-white/5 hover:bg-white/10 transition-all duration-300">
-                <Github className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 bg-white/5 hover:bg-white/10 transition-all duration-300">
-                <Linkedin className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 bg-white/5 hover:bg-white/10 transition-all duration-300">
-                <Mail className="h-5 w-5" />
-              </Button>
+              {siteData.socialLinks.map((link) => (
+                <Button 
+                  key={link.id}
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-full h-10 w-10 bg-white/5 hover:bg-white/10 transition-all duration-300"
+                  onClick={() => window.open(link.url, '_blank')}
+                >
+                  {link.platform === "GitHub" && <Github className="h-5 w-5" />}
+                  {link.platform === "LinkedIn" && <Linkedin className="h-5 w-5" />}
+                  {link.platform === "Twitter" && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>}
+                  {link.platform === "Email" && <Mail className="h-5 w-5" />}
+                </Button>
+              ))}
             </div>
           </div>
         </div>
@@ -185,30 +177,30 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <p className="text-lg text-white/80 leading-relaxed">
-                Hello! I'm Shubham, a passionate DevOps Engineer with expertise in automating, optimizing, and securing cloud infrastructure. 
+                Hello! I'm {siteData.personalInfo.name}, a passionate DevOps Engineer with expertise in automating, optimizing, and securing cloud infrastructure. 
                 With a strong foundation in both development and operations, I bridge the gap between these two worlds to create efficient, 
                 scalable, and reliable systems.
               </p>
               <p className="text-lg text-white/80 leading-relaxed">
-                I believe in the power of automation and continuous improvement. My goal is to build resilient infrastructure that enables 
-                development teams to deliver features rapidly without compromising on stability or security. When not working with cloud 
-                technologies, I enjoy contributing to open-source projects and sharing knowledge through my technical blog.
+                {siteData.personalInfo.bio}
               </p>
               <div className="pt-4">
                 <h3 className="text-xl font-medium mb-3 text-white/90">My Skills</h3>
                 <div className="flex flex-wrap gap-3">
-                  {[
-                    {name: "AWS", icon: <Cloud className="h-4 w-4 mr-1" />},
-                    {name: "Kubernetes", icon: <Server className="h-4 w-4 mr-1" />},
-                    {name: "Docker", icon: <Database className="h-4 w-4 mr-1" />},
-                    {name: "Terraform", icon: <Code className="h-4 w-4 mr-1" />},
-                    {name: "CI/CD", icon: <Terminal className="h-4 w-4 mr-1" />},
-                    {name: "Python", icon: <Code className="h-4 w-4 mr-1" />},
-                    {name: "Linux", icon: <Terminal className="h-4 w-4 mr-1" />},
-                    {name: "Monitoring", icon: <Cpu className="h-4 w-4 mr-1" />},
-                  ].map((skill) => (
-                    <span key={skill.name} className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm flex items-center hover:bg-white/10 transition-colors duration-300">
-                      {skill.icon} {skill.name}
+                  {siteData.personalInfo.skills.map((skill) => (
+                    <span key={skill} className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm flex items-center hover:bg-white/10 transition-colors duration-300">
+                      {skill === "AWS" && <Cloud className="h-4 w-4 mr-1" />}
+                      {skill === "Kubernetes" && <Server className="h-4 w-4 mr-1" />}
+                      {skill === "Docker" && <Database className="h-4 w-4 mr-1" />}
+                      {skill === "Terraform" && <Code className="h-4 w-4 mr-1" />}
+                      {skill === "CI/CD" && <Terminal className="h-4 w-4 mr-1" />}
+                      {skill === "Python" && <Code className="h-4 w-4 mr-1" />}
+                      {skill === "Linux" && <Terminal className="h-4 w-4 mr-1" />}
+                      {skill === "Monitoring" && <Cpu className="h-4 w-4 mr-1" />}
+                      {!["AWS", "Kubernetes", "Docker", "Terraform", "CI/CD", "Python", "Linux", "Monitoring"].includes(skill) && 
+                        <Code className="h-4 w-4 mr-1" />
+                      }
+                      {skill}
                     </span>
                   ))}
                 </div>
@@ -216,10 +208,17 @@ const Index = () => {
             </div>
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-[#9b87f5]/20 to-[#1A1F2C] relative shadow-2xl border border-white/10 transform hover:scale-[1.02] transition-all duration-500">
-                {/* Replace with actual profile image */}
-                <div className="absolute inset-0 flex items-center justify-center text-white/40">
-                  Profile Image
-                </div>
+                {siteData.personalInfo.profileImageUrl ? (
+                  <img 
+                    src={siteData.personalInfo.profileImageUrl} 
+                    alt={siteData.personalInfo.name} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-white/40">
+                    Profile Image
+                  </div>
+                )}
               </div>
               <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-[#9b87f5]/10 rounded-full -z-10 animate-pulse"></div>
               <div className="absolute -top-6 -left-6 w-32 h-32 bg-[#7E69AB]/10 rounded-full -z-10 animate-pulse" style={{ animationDelay: "1s" }}></div>
@@ -331,26 +330,7 @@ const Index = () => {
             <div className="absolute left-0 md:left-1/2 top-0 h-full w-[2px] bg-gradient-to-b from-[#9b87f5] to-[#D6BCFA] md:-translate-x-1/2"></div>
             
             {/* Timeline entries */}
-            {[
-              {
-                company: "Cloud Infrastructure Inc.",
-                role: "Senior DevOps Engineer",
-                period: "2021 - Present",
-                description: "Led the migration to Kubernetes, reducing deployment time by 70%. Implemented GitOps workflows and designed scalable multi-cloud architectures for enterprise clients."
-              },
-              {
-                company: "Tech Solutions Ltd.",
-                role: "DevOps Engineer",
-                period: "2019 - 2021",
-                description: "Built CI/CD pipelines using Jenkins, GitHub Actions, and AWS CodePipeline. Automated infrastructure provisioning with Terraform and CloudFormation."
-              },
-              {
-                company: "Digital Systems LLC",
-                role: "Systems Administrator",
-                period: "2017 - 2019",
-                description: "Managed Linux servers and implemented monitoring solutions. Introduced containerization with Docker and automated routine maintenance tasks."
-              }
-            ].map((job, i) => (
+            {siteData.experience.map((job, i) => (
               <div key={i} className={`relative flex flex-col md:flex-row md:justify-between items-start mb-16 ${i % 2 === 0 ? "" : "md:flex-row-reverse"}`}>
                 <div className={`absolute left-0 md:left-1/2 top-0 w-5 h-5 rounded-full bg-[#9b87f5] -translate-x-1/2 z-10 border-2 border-white shadow-md`}></div>
                 <div className={`w-full md:w-[calc(50%-2rem)] ${i % 2 === 0 ? "md:pr-8" : "md:pl-8"}`}>
@@ -383,56 +363,73 @@ const Index = () => {
             Insights, guides, and thoughts on DevOps, cloud architecture, and automation.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Kubernetes Best Practices for Production",
-                tags: ["Kubernetes", "DevOps"],
-                date: "April 10, 2025",
-                excerpt: "Essential strategies for running resilient, secure, and efficient Kubernetes clusters in production environments."
-              },
-              {
-                title: "Infrastructure as Code: Beyond the Basics",
-                tags: ["Terraform", "AWS"],
-                date: "March 22, 2025",
-                excerpt: "Advanced techniques for managing complex infrastructure with Terraform modules, workspaces, and state management."
-              },
-              {
-                title: "Building Effective CI/CD Pipelines",
-                tags: ["CI/CD", "Automation"],
-                date: "February 15, 2025",
-                excerpt: "Design patterns and implementation strategies for creating robust continuous integration and delivery workflows."
-              }
-            ].map((article, i) => (
-              <div key={i} className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] rounded-xl overflow-hidden shadow-md border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:translate-y-[-5px]">
-                <div className="aspect-video bg-[#9b87f5]/10 relative">
-                  {/* Blog featured image - replace with actual image */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <BookOpen className="h-12 w-12 text-[#9b87f5]/40" />
+          {publishedPosts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {publishedPosts.map((article) => (
+                <div key={article.id} className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] rounded-xl overflow-hidden shadow-md border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:translate-y-[-5px]">
+                  <div className="aspect-video bg-[#9b87f5]/10 relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <BookOpen className="h-12 w-12 text-[#9b87f5]/40" />
+                    </div>
                   </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex gap-2 mb-3">
-                    {article.tags.map((tag) => (
-                      <span key={tag} className="px-2 py-1 bg-[#9b87f5]/10 text-[#D6BCFA] rounded-full text-xs border border-[#9b87f5]/20">
-                        {tag}
+                  <div className="p-6">
+                    <div className="flex gap-2 mb-3">
+                      <span className="px-2 py-1 bg-[#9b87f5]/10 text-[#D6BCFA] rounded-full text-xs border border-[#9b87f5]/20">
+                        {article.category}
                       </span>
-                    ))}
-                  </div>
-                  <h3 className="text-xl font-bold mb-2 text-white">{article.title}</h3>
-                  <p className="text-white/70 mb-4 line-clamp-3">
-                    {article.excerpt}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-white/50">{article.date}</span>
-                    <Button variant="ghost" className="text-[#9b87f5] p-0 h-auto hover:text-[#D6BCFA] transition-colors">Read More →</Button>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 text-white">{article.title}</h3>
+                    <p className="text-white/70 mb-4 line-clamp-3">
+                      {article.excerpt}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/50">{article.date}</span>
+                      <Link to={`/blog/${article.id}`}>
+                        <Button variant="ghost" className="text-[#9b87f5] p-0 h-auto hover:text-[#D6BCFA] transition-colors">Read More →</Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No articles available yet.</p>
+            </div>
+          )}
+          
+          {publishedPosts.length > 0 && (
+            <div className="text-center mt-10">
+              <Link to="/blog">
+                <Button variant="outline" className="rounded-full px-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20">
+                  View All Articles
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
+
+      {/* WhatsApp Section */}
+      {siteData.siteSettings.showWhatsappSection && (
+        <section className="py-10 relative bg-gradient-to-r from-[#075E54]/80 to-[#128C7E]/80">
+          <div className="container px-4 md:px-6 flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-6 md:mb-0">
+              <h3 className="text-2xl font-bold mb-2">Join My WhatsApp Group</h3>
+              <p className="text-white/80 max-w-lg">
+                Connect with me and other DevOps professionals to share knowledge, discuss challenges, and stay updated.
+              </p>
+            </div>
+            <Button 
+              className="bg-[#25D366] hover:bg-[#25D366]/90 text-white font-medium px-8 py-6 rounded-full"
+              onClick={() => window.open(siteData.siteSettings.whatsappLink, '_blank')}
+            >
+              <Whatsapp className="mr-2 h-5 w-5" />
+              Join WhatsApp Group
+            </Button>
+          </div>
+        </section>
+      )}
 
       {/* Contact Section */}
       <section id="contact" ref={sectionRefs.contact} className="py-20 relative">
@@ -543,7 +540,7 @@ const Index = () => {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
-              <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">Shubham Sahare</h2>
+              <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA]">{siteData.personalInfo.name}</h2>
               <p className="text-sm text-white/50">© {new Date().getFullYear()} All rights reserved.</p>
             </div>
             <div className="flex gap-6">

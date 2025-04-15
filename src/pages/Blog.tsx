@@ -4,40 +4,14 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import ParticleBackground from "@/components/ParticleBackground";
-
-// Mock blog data - in a real app, this would come from an API or context
-const blogPosts = [
-  {
-    id: 1,
-    title: "Getting Started with DevOps",
-    excerpt: "Learn the fundamentals of DevOps practices and tools...",
-    date: "2025-03-10",
-    category: "DevOps",
-  },
-  {
-    id: 2,
-    title: "Kubernetes for Beginners",
-    excerpt: "A comprehensive guide to understanding Kubernetes basics...",
-    date: "2025-02-25",
-    category: "Kubernetes",
-  },
-  {
-    id: 3,
-    title: "CI/CD Pipeline Automation",
-    excerpt: "How to automate your deployment process with CI/CD...",
-    date: "2025-02-15",
-    category: "Automation",
-  },
-  {
-    id: 4,
-    title: "Docker Container Orchestration",
-    excerpt: "Best practices for managing Docker containers at scale...",
-    date: "2025-01-30",
-    category: "Docker",
-  },
-];
+import { useSiteData } from "@/context/SiteDataContext";
 
 const Blog = () => {
+  const { siteData } = useSiteData();
+  
+  // Filter published blog posts
+  const publishedPosts = siteData.blogPosts.filter(post => post.status === "Published");
+
   return (
     <div className="min-h-screen bg-background">
       <ParticleBackground />
@@ -51,24 +25,30 @@ const Blog = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogPosts.map((post) => (
-            <Link to={`/blog/${post.id}`} key={post.id}>
-              <Card className="h-full transition-all duration-300 hover:shadow-lg hover:translate-y-[-5px]">
-                <CardHeader>
-                  <div className="text-sm text-muted-foreground">{post.date} · {post.category}</div>
-                  <CardTitle>{post.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-base">{post.excerpt}</CardDescription>
-                </CardContent>
-                <CardFooter>
-                  <div className="text-primary text-sm font-medium">Read more →</div>
-                </CardFooter>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        {publishedPosts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {publishedPosts.map((post) => (
+              <Link to={`/blog/${post.id}`} key={post.id}>
+                <Card className="h-full transition-all duration-300 hover:shadow-lg hover:translate-y-[-5px]">
+                  <CardHeader>
+                    <div className="text-sm text-muted-foreground">{post.date} · {post.category}</div>
+                    <CardTitle>{post.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-base">{post.excerpt}</CardDescription>
+                  </CardContent>
+                  <CardFooter>
+                    <div className="text-primary text-sm font-medium">Read more →</div>
+                  </CardFooter>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No blog posts available yet.</p>
+          </div>
+        )}
       </div>
     </div>
   );
