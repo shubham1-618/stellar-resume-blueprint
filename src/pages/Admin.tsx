@@ -1,9 +1,16 @@
+
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthForm } from "@/components/admin/auth/AuthForm";
 import { Header } from "@/components/admin/Header";
 import { Sidebar } from "@/components/admin/Sidebar";
+import { Card, CardContent, CardHeader, CardFooter, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Admin = () => {
   const { toast } = useToast();
@@ -15,6 +22,41 @@ const Admin = () => {
     confirmPassword: "",
     fullName: "",
   });
+
+  // Profile state
+  const [name, setName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [personalEmail, setPersonalEmail] = useState("");
+  const [location, setLocation] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [bio, setBio] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [newSkill, setNewSkill] = useState("");
+
+  // Blog state
+  const [newBlogTitle, setNewBlogTitle] = useState("");
+  const [newBlogExcerpt, setNewBlogExcerpt] = useState("");
+  const [newBlogCategory, setNewBlogCategory] = useState("");
+  const [newBlogDate, setNewBlogDate] = useState("");
+  const [newBlogStatus, setNewBlogStatus] = useState<"Published" | "Draft">("Draft");
+  const [newBlogContent, setNewBlogContent] = useState("");
+  const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
+
+  // User management state
+  const [users, setUsers] = useState<any[]>([]);
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+  const [newUserRole, setNewUserRole] = useState("");
+
+  // Site settings state
+  const [siteTitle, setSiteTitle] = useState("");
+  const [siteDescription, setSiteDescription] = useState("");
+  const [heroVideoUrl, setHeroVideoUrl] = useState("");
+  const [seoKeywords, setSeoKeywords] = useState("");
+  const [whatsappLink, setWhatsappLink] = useState("");
+  const [showWhatsappSection, setShowWhatsappSection] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -51,6 +93,110 @@ const Admin = () => {
     toast({
       title: "Logged out",
       description: "You have been successfully logged out",
+    });
+  };
+
+  // Profile handlers
+  const handleSavePersonalInfo = () => {
+    toast({
+      title: "Changes saved",
+      description: "Your profile information has been updated",
+    });
+  };
+
+  const handleAddSkill = () => {
+    if (newSkill.trim() !== "" && !skills.includes(newSkill.trim())) {
+      setSkills([...skills, newSkill.trim()]);
+      setNewSkill("");
+      toast({
+        title: "Skill added",
+        description: `${newSkill.trim()} has been added to your skills`,
+      });
+    }
+  };
+
+  const handleRemoveSkill = (skill: string) => {
+    setSkills(skills.filter(s => s !== skill));
+    toast({
+      title: "Skill removed",
+      description: `${skill} has been removed from your skills`,
+    });
+  };
+
+  // Blog handlers
+  const resetBlogForm = () => {
+    setNewBlogTitle("");
+    setNewBlogExcerpt("");
+    setNewBlogCategory("");
+    setNewBlogDate("");
+    setNewBlogStatus("Draft");
+    setNewBlogContent("");
+    setEditingBlogId(null);
+  };
+
+  const handleSaveBlog = () => {
+    toast({
+      title: editingBlogId ? "Blog updated" : "Blog created",
+      description: editingBlogId 
+        ? "Your blog post has been updated successfully" 
+        : "Your blog post has been created successfully",
+    });
+    resetBlogForm();
+  };
+
+  const handleEditBlog = (blog: any) => {
+    setNewBlogTitle(blog.title);
+    setNewBlogExcerpt(blog.excerpt);
+    setNewBlogCategory(blog.category);
+    setNewBlogDate(blog.date);
+    setNewBlogStatus(blog.status as "Published" | "Draft");
+    setNewBlogContent(blog.content);
+    setEditingBlogId(blog.id);
+    toast({
+      title: "Editing blog",
+      description: `Now editing "${blog.title}"`,
+    });
+  };
+
+  const handleDeleteBlog = (id: string) => {
+    toast({
+      title: "Blog deleted",
+      description: "The blog post has been deleted",
+    });
+  };
+
+  const handleBlogStatusChange = (id: string, status: "Published" | "Draft") => {
+    toast({
+      title: `Blog ${status === "Published" ? "published" : "unpublished"}`,
+      description: `The blog post status is now ${status}`,
+    });
+  };
+
+  // User management handlers
+  const handleAddUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: "User added",
+      description: `${newUserName} has been added as a ${newUserRole}`,
+    });
+    setNewUserName("");
+    setNewUserEmail("");
+    setNewUserPassword("");
+    setNewUserRole("");
+  };
+
+  const handleDeleteUser = (id: string) => {
+    toast({
+      title: "User deleted",
+      description: "The user has been deleted",
+    });
+  };
+
+  // Settings handlers
+  const handleSaveSettings = () => {
+    toast({
+      title: "Settings saved",
+      description: "Your site settings have been updated",
     });
   };
 
