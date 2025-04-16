@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,17 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSiteData } from "@/context/SiteDataContext";
 
 const Admin = () => {
   const { toast } = useToast();
+  const { siteData } = useSiteData();
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    fullName: "",
-  });
 
   // Profile state
   const [name, setName] = useState("");
