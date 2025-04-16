@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -155,7 +154,7 @@ const Admin = () => {
     setNewBlogDate(blog.date);
     setNewBlogStatus(blog.status as "Published" | "Draft");
     setNewBlogContent(blog.content);
-    setEditingBlogId(blog.id.toString()); // Convert id to string
+    setEditingBlogId(blog.id.toString()); // Explicitly convert to string
     toast({
       title: "Editing blog",
       description: `Now editing "${blog.title}"`,
@@ -478,7 +477,7 @@ const Admin = () => {
                     <h3 className="text-lg font-medium text-white">Existing Posts</h3>
                     {siteData.blogPosts.length > 0 ? (
                       siteData.blogPosts.map((post) => (
-                        <div key={post.id} className="bg-white/5 p-4 rounded-lg flex flex-col md:flex-row justify-between">
+                        <div key={post.id.toString()} className="bg-white/5 p-4 rounded-lg flex flex-col md:flex-row justify-between">
                           <div className="flex-1">
                             <h4 className="text-lg font-medium">{post.title}</h4>
                             <div className="text-sm text-white/60 mb-2">
@@ -503,7 +502,7 @@ const Admin = () => {
                                 variant="outline"
                                 size="sm"
                                 className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
-                                onClick={() => handleBlogStatusChange(post.id, "Draft")}
+                                onClick={() => handleBlogStatusChange(post.id.toString(), post.status === "Published" ? "Draft" : "Published")}
                               >
                                 Unpublish
                               </Button>
@@ -512,7 +511,7 @@ const Admin = () => {
                                 variant="outline"
                                 size="sm"
                                 className="border-green-500/30 text-green-400 hover:bg-green-500/10"
-                                onClick={() => handleBlogStatusChange(post.id, "Published")}
+                                onClick={() => handleBlogStatusChange(post.id.toString(), post.status === "Published" ? "Draft" : "Published")}
                               >
                                 Publish
                               </Button>
@@ -521,7 +520,7 @@ const Admin = () => {
                               variant="outline"
                               size="sm"
                               className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                              onClick={() => handleDeleteBlog(post.id)}
+                              onClick={() => handleDeleteBlog(post.id.toString())}
                             >
                               Delete
                             </Button>
