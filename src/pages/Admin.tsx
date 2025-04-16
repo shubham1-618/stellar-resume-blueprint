@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthForm } from "@/components/admin/auth/AuthForm";
@@ -14,9 +15,10 @@ import { useSiteData } from "@/context/SiteDataContext";
 
 const Admin = () => {
   const { toast } = useToast();
-  const { siteData } = useSiteData();
+  const { siteData, addBlogPost, updateBlogPost, deleteBlogPost, updatePersonalInfo, updateSiteSettings } = useSiteData();
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activeSection, setActiveSection] = useState('profile');
   
   // Add back the formData state that's still being used
   const [formData, setFormData] = useState({
@@ -61,6 +63,27 @@ const Admin = () => {
   const [whatsappLink, setWhatsappLink] = useState("");
   const [showWhatsappSection, setShowWhatsappSection] = useState(false);
 
+  // Load initial values from siteData
+  useEffect(() => {
+    if (siteData) {
+      setName(siteData.personalInfo.name || "");
+      setJobTitle(siteData.personalInfo.jobTitle || "");
+      setPersonalEmail(siteData.personalInfo.email || "");
+      setLocation(siteData.personalInfo.location || "");
+      setProfileImageUrl(siteData.personalInfo.profileImageUrl || "");
+      setResumeUrl(siteData.personalInfo.resumeUrl || "");
+      setBio(siteData.personalInfo.bio || "");
+      setSkills(siteData.personalInfo.skills || []);
+      
+      setSiteTitle(siteData.siteSettings.siteTitle || "");
+      setSiteDescription(siteData.siteSettings.siteDescription || "");
+      setHeroVideoUrl(siteData.siteSettings.heroVideoUrl || "");
+      setSeoKeywords(siteData.siteSettings.seoKeywords || "");
+      setWhatsappLink(siteData.siteSettings.whatsappLink || "");
+      setShowWhatsappSection(siteData.siteSettings.showWhatsappSection || false);
+    }
+  }, [siteData]);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -70,7 +93,7 @@ const Admin = () => {
     setIsAuthenticated(true);
     toast({
       title: "Login successful",
-      description: "Welcome back!",
+      description: "Welcome to your WordPress-like CMS dashboard!",
     });
   };
 
@@ -101,6 +124,17 @@ const Admin = () => {
 
   // Profile handlers
   const handleSavePersonalInfo = () => {
+    updatePersonalInfo({
+      name,
+      jobTitle,
+      email: personalEmail,
+      location,
+      profileImageUrl,
+      resumeUrl,
+      bio,
+      skills
+    });
+    
     toast({
       title: "Changes saved",
       description: "Your profile information has been updated",
@@ -138,6 +172,21 @@ const Admin = () => {
   };
 
   const handleSaveBlog = () => {
+    const blogData = {
+      title: newBlogTitle,
+      excerpt: newBlogExcerpt,
+      content: newBlogContent,
+      date: newBlogDate || new Date().toISOString().split('T')[0],
+      category: newBlogCategory || "Uncategorized",
+      status: newBlogStatus
+    };
+    
+    if (editingBlogId) {
+      updateBlogPost(parseInt(editingBlogId), blogData);
+    } else {
+      addBlogPost(blogData);
+    }
+    
     toast({
       title: editingBlogId ? "Blog updated" : "Blog created",
       description: editingBlogId 
@@ -162,22 +211,34 @@ const Admin = () => {
   };
 
   const handleDeleteBlog = (id: string) => {
+    deleteBlogPost(parseInt(id));
     toast({
       title: "Blog deleted",
       description: "The blog post has been deleted",
     });
   };
 
-  const handleBlogStatusChange = (id: string, status: "Published" | "Draft") => {
+  const handleBlogStatusChange = (id: string, newStatus: "Published" | "Draft") => {
+    updateBlogPost(parseInt(id), { status: newStatus });
     toast({
-      title: `Blog ${status === "Published" ? "published" : "unpublished"}`,
-      description: `The blog post status is now ${status}`,
+      title: `Blog ${newStatus === "Published" ? "published" : "unpublished"}`,
+      description: `The blog post status is now ${newStatus}`,
     });
   };
 
   // User management handlers
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
+    // In a real app, this would call an API to add a user
+    // For now we'll just update the local state
+    const newUser = {
+      id: Date.now().toString(),
+      name: newUserName,
+      email: newUserEmail,
+      role: newUserRole
+    };
+    setUsers([...users, newUser]);
+    
     toast({
       title: "User added",
       description: `${newUserName} has been added as a ${newUserRole}`,
@@ -189,6 +250,7 @@ const Admin = () => {
   };
 
   const handleDeleteUser = (id: string) => {
+    setUsers(users.filter(user => user.id !== id));
     toast({
       title: "User deleted",
       description: "The user has been deleted",
@@ -197,10 +259,36 @@ const Admin = () => {
 
   // Settings handlers
   const handleSaveSettings = () => {
+    updateSiteSettings({
+      siteTitle,
+      siteDescription,
+      seoKeywords,
+      whatsappLink,
+      showWhatsappSection,
+      heroVideoUrl
+    });
+    
     toast({
       title: "Settings saved",
       description: "Your site settings have been updated",
     });
+  };
+
+  const handleSectionChange = (section: string) => {
+    setActiveSection(section);
+    
+    // Map section to tab if needed
+    let tabValue = section;
+    if (section === 'dashboard') tabValue = 'profile';
+    if (section === 'appearance' || section === 'media' || section === 'videos' || section === 'projects') {
+      tabValue = 'settings';
+    }
+    
+    // This will work if the sections align with the tab values
+    const tabElement = document.querySelector(`[data-state="inactive"][data-value="${tabValue}"]`) as HTMLElement;
+    if (tabElement) {
+      tabElement.click();
+    }
   };
 
   if (!isAuthenticated) {
@@ -219,8 +307,9 @@ const Admin = () => {
     <div className="min-h-screen bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white">
       <div className="flex">
         <Sidebar 
-          onSectionChange={(section) => document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' })}
+          onSectionChange={handleSectionChange}
           onLogout={handleLogout}
+          activeSection={activeSection}
         />
 
         <main className="flex-1 md:ml-64 p-6">
@@ -502,7 +591,7 @@ const Admin = () => {
                                 variant="outline"
                                 size="sm"
                                 className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
-                                onClick={() => handleBlogStatusChange(post.id.toString(), post.status === "Published" ? "Draft" : "Published")}
+                                onClick={() => handleBlogStatusChange(post.id.toString(), "Draft")}
                               >
                                 Unpublish
                               </Button>
@@ -511,7 +600,7 @@ const Admin = () => {
                                 variant="outline"
                                 size="sm"
                                 className="border-green-500/30 text-green-400 hover:bg-green-500/10"
-                                onClick={() => handleBlogStatusChange(post.id.toString(), post.status === "Published" ? "Draft" : "Published")}
+                                onClick={() => handleBlogStatusChange(post.id.toString(), "Published")}
                               >
                                 Publish
                               </Button>
