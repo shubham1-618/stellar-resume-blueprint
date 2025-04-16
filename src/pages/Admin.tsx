@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +18,14 @@ const Admin = () => {
   const { siteData } = useSiteData();
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Add back the formData state that's still being used
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    fullName: "",
+  });
 
   // Profile state
   const [name, setName] = useState("");
@@ -146,7 +155,7 @@ const Admin = () => {
     setNewBlogDate(blog.date);
     setNewBlogStatus(blog.status as "Published" | "Draft");
     setNewBlogContent(blog.content);
-    setEditingBlogId(blog.id);
+    setEditingBlogId(blog.id.toString()); // Convert id to string
     toast({
       title: "Editing blog",
       description: `Now editing "${blog.title}"`,
