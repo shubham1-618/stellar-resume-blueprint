@@ -1,90 +1,80 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { BlogPost, VideoItem, Project, Experience, SocialLink, PersonalInfo, SiteSettings } from '@/types/siteData';
+import { connectDB } from './config/database';
+import { authController } from './controllers/auth.controller';
+import { BlogPost } from './models/BlogPost';
 
 const app = express();
 const port = 3001;
+
+// Connect to MongoDB
+connectDB();
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Simple in-memory storage (replace with a real database in production)
-let storage = {
-  users: [],
-  blogPosts: [],
-  videos: [],
-  projects: [],
-  experience: [],
-  socialLinks: [],
-  personalInfo: null,
-  siteSettings: null,
-};
-
 // Auth routes
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  // Implement proper authentication here
-  res.json({
-    success: true,
-    data: {
-      token: 'dummy-token',
-      user: { id: '1', email, fullName: 'Admin User', role: 'admin' }
-    }
-  });
-});
-
-app.post('/api/auth/register', (req, res) => {
-  const { email, password, fullName } = req.body;
-  // In a real app, you would hash the password and store user data
-  res.json({
-    success: true,
-    data: {
-      token: 'dummy-token',
-      user: { id: Date.now().toString(), email, fullName, role: 'user' }
-    }
-  });
-});
-
-app.post('/api/auth/logout', (req, res) => {
-  // In a real app, you would invalidate the token
-  res.json({ success: true });
-});
+app.post('/api/auth/login', authController.login);
+app.post('/api/auth/register', authController.register);
 
 // Blog routes
-app.get('/api/blog', (_, res) => {
-  res.json({ success: true, data: storage.blogPosts });
-});
-
-app.get('/api/blog/:id', (req, res) => {
-  const { id } = req.params;
-  const post = storage.blogPosts.find(post => post.id === parseInt(id));
-  if (post) {
-    res.json({ success: true, data: post });
-  } else {
-    res.status(404).json({ success: false, error: 'Blog post not found' });
+app.get('/api/blog', async (_, res) => {
+  try {
+    const posts = await BlogPost.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: posts });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-app.post('/api/blog', (req, res) => {
-  const newPost = { ...req.body, id: Date.now() };
-  storage.blogPosts.push(newPost);
-  res.json({ success: true, data: newPost });
+app.get('/api/blog/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await BlogPost.findById(id);
+    if (post) {
+      res.json({ success: true, data: post });
+    } else {
+      res.status(404).json({ success: false, error: 'Blog post not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
 });
 
-app.put('/api/blog/:id', (req, res) => {
-  const { id } = req.params;
-  storage.blogPosts = storage.blogPosts.map(post =>
-    post.id === parseInt(id) ? { ...post, ...req.body } : post
-  );
-  res.json({ success: true, data: storage.blogPosts.find(post => post.id === parseInt(id)) });
+app.post('/api/blog', async (req, res) => {
+  try {
+    const newPost = new BlogPost(req.body);
+    await newPost.save();
+    res.json({ success: true, data: newPost });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
 });
 
-app.delete('/api/blog/:id', (req, res) => {
+app.put('/api/blog/:id', async (req, res) => {
   const { id } = req.params;
-  storage.blogPosts = storage.blogPosts.filter(post => post.id !== parseInt(id));
-  res.json({ success: true });
+  try {
+    const updatedPost = await BlogPost.findByIdAndUpdate(id, req.body, { new: true });
+    if (updatedPost) {
+      res.json({ success: true, data: updatedPost });
+    } else {
+      res.status(404).json({ success: false, error: 'Blog post not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+app.delete('/api/blog/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await BlogPost.findByIdAndDelete(id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
 });
 
 // Media routes
