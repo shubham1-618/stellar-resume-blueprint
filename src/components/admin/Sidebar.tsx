@@ -8,7 +8,7 @@ import {
   BookOpen, 
   Users, 
   Settings, 
-  Home, 
+  LayoutDashboard, 
   FileText, 
   Image, 
   Video, 
@@ -29,7 +29,7 @@ export const Sidebar = ({ onSectionChange, onLogout, activeSection = 'profile' }
   const { toast } = useToast();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'blog', label: 'Blog Posts', icon: FileText },
     { id: 'media', label: 'Media', icon: Image },
@@ -70,7 +70,7 @@ export const Sidebar = ({ onSectionChange, onLogout, activeSection = 'profile' }
       
       <Separator className="bg-white/10 my-3" />
       
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => (
           <Button 
             key={item.id}
