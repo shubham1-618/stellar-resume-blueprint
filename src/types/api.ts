@@ -1,5 +1,4 @@
-
-import { BlogPost, VideoItem, Project, Experience, SocialLink, PersonalInfo, SiteSettings } from "@/context/SiteDataContext";
+import { BlogPost, VideoItem, Project, Experience, SocialLink, PersonalInfo, SiteSettings } from "@/types/siteData";
 
 export interface ApiResponse<T = any> {
   success: boolean;
