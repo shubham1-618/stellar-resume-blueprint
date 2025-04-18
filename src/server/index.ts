@@ -1,8 +1,7 @@
-
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { BlogPost, VideoItem, Project, Experience, SocialLink, PersonalInfo, SiteSettings } from '@/context/SiteDataContext';
+import { BlogPost, VideoItem, Project, Experience, SocialLink, PersonalInfo, SiteSettings } from '@/types/siteData';
 
 const app = express();
 const port = 3001;

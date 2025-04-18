@@ -1,11 +1,10 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Linkedin, Github, Mail, Calendar, ChevronDown, Code, Terminal, Server, Database, Cloud, Download, ExternalLink, BookOpen, Cpu, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ParticleBackground from "@/components/ParticleBackground";
 import MainNavigation from "@/components/MainNavigation";
-import { useSiteData } from "@/context/SiteDataContext";
+import { useSiteData } from "@/contexts/SiteDataContext";
 import { Link } from "react-router-dom";
 
 const Index = () => {
@@ -27,10 +26,8 @@ const Index = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Update navbar styling based on scroll position
       setIsScrolled(window.scrollY > 50);
 
-      // Find which section is currently in view
       const currentPosition = window.scrollY + window.innerHeight / 3;
       
       for (const section in sectionRefs) {
@@ -72,20 +69,18 @@ const Index = () => {
     const element = sectionRefs[sectionId].current;
     if (element) {
       window.scrollTo({
-        top: element.offsetTop - 80, // Offset for the fixed header
+        top: element.offsetTop - 80,
         behavior: "smooth",
       });
     }
   };
 
-  // Filter published blog posts for the Latest Articles section
   const publishedPosts = siteData.blogPosts.filter(post => post.status === "Published").slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-white overflow-x-hidden">
       <MainNavigation />
 
-      {/* Hero Section with Integrated Video */}
       <section id="home" ref={sectionRefs.home} className="relative flex flex-col items-center justify-center min-h-screen pt-16 overflow-hidden">
         <ParticleBackground />
         <div className="container relative z-10 px-4 flex flex-col lg:flex-row items-center gap-8">
@@ -130,7 +125,6 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Video Resume Embedded */}
           <div className="lg:w-1/2 mt-12 lg:mt-0">
             <div className="aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] border border-white/10 shadow-2xl relative">
               {siteData.siteSettings.heroVideoUrl ? (
@@ -263,7 +257,6 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array(6).fill(0).map((_, i) => (
               <div key={i} className="group relative overflow-hidden rounded-xl aspect-video bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] hover:shadow-xl transition-all duration-500 border border-white/5 hover:border-white/10 transform hover:scale-[1.02]">
-                {/* Portfolio item - replace with actual project thumbnail */}
                 <div className="absolute inset-0 flex items-center justify-center text-white/40">
                   Project Thumbnail {i + 1}
                 </div>
@@ -293,7 +286,6 @@ const Index = () => {
               <div key={i} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div className={`${i % 2 === 1 ? "lg:order-2" : ""}`}>
                   <div className="bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] rounded-xl overflow-hidden aspect-video relative border border-white/10 shadow-xl transform hover:scale-[1.02] transition-all duration-500">
-                    {/* Project screenshot - replace with actual screenshot */}
                     <div className="absolute inset-0 flex items-center justify-center text-white/40">
                       Project Screenshot {i + 1}
                     </div>
@@ -337,10 +329,8 @@ const Index = () => {
           <div className="h-1 w-20 bg-gradient-to-r from-[#9b87f5] to-[#D6BCFA] mx-auto mb-12 rounded-full"></div>
           
           <div className="relative max-w-3xl mx-auto">
-            {/* Timeline line */}
             <div className="absolute left-0 md:left-1/2 top-0 h-full w-[2px] bg-gradient-to-b from-[#9b87f5] to-[#D6BCFA] md:-translate-x-1/2"></div>
             
-            {/* Timeline entries */}
             {siteData.experience.map((job, i) => (
               <div key={i} className={`relative flex flex-col md:flex-row md:justify-between items-start mb-16 ${i % 2 === 0 ? "" : "md:flex-row-reverse"}`}>
                 <div className={`absolute left-0 md:left-1/2 top-0 w-5 h-5 rounded-full bg-[#9b87f5] -translate-x-1/2 z-10 border-2 border-white shadow-md`}></div>

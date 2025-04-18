@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import ParticleBackground from "@/components/ParticleBackground";
-import { useSiteData } from "@/context/SiteDataContext";
+import { useSiteData } from "@/contexts/SiteDataContext";
 import { ArrowLeft, BookOpen } from "lucide-react";
 
 const Blog = () => {

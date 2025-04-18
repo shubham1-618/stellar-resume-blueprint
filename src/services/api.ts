@@ -1,7 +1,6 @@
-
 import axios from 'axios';
 import { ApiResponse, LoginRequest, RegisterRequest, AuthResponse } from '@/types/api';
-import { BlogPost, VideoItem, Project, Experience, SocialLink, PersonalInfo, SiteSettings } from '@/context/SiteDataContext';
+import { BlogPost, VideoItem, Project, Experience, SocialLink, PersonalInfo, SiteSettings } from '@/types/siteData';
 
 const API_URL = 'http://localhost:3001/api';
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSiteData } from "@/context/SiteDataContext";
+import { useSiteData } from "@/contexts/SiteDataContext";
 
 const Admin = () => {
   const { toast } = useToast();
@@ -20,7 +19,6 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
   
-  // Add back the formData state that's still being used
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -28,7 +26,6 @@ const Admin = () => {
     fullName: "",
   });
 
-  // Profile state
   const [name, setName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [personalEmail, setPersonalEmail] = useState("");
@@ -39,7 +36,6 @@ const Admin = () => {
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
 
-  // Blog state
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogExcerpt, setNewBlogExcerpt] = useState("");
   const [newBlogCategory, setNewBlogCategory] = useState("");
@@ -48,14 +44,12 @@ const Admin = () => {
   const [newBlogContent, setNewBlogContent] = useState("");
   const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
 
-  // User management state
   const [users, setUsers] = useState<any[]>([]);
   const [newUserName, setNewUserName] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
   const [newUserRole, setNewUserRole] = useState("");
 
-  // Site settings state
   const [siteTitle, setSiteTitle] = useState("");
   const [siteDescription, setSiteDescription] = useState("");
   const [heroVideoUrl, setHeroVideoUrl] = useState("");
@@ -63,7 +57,6 @@ const Admin = () => {
   const [whatsappLink, setWhatsappLink] = useState("");
   const [showWhatsappSection, setShowWhatsappSection] = useState(false);
 
-  // Load initial values from siteData
   useEffect(() => {
     if (siteData) {
       setName(siteData.personalInfo.name || "");
@@ -122,7 +115,6 @@ const Admin = () => {
     });
   };
 
-  // Profile handlers
   const handleSavePersonalInfo = () => {
     updatePersonalInfo({
       name,
@@ -160,7 +152,6 @@ const Admin = () => {
     });
   };
 
-  // Blog handlers
   const resetBlogForm = () => {
     setNewBlogTitle("");
     setNewBlogExcerpt("");
@@ -203,7 +194,7 @@ const Admin = () => {
     setNewBlogDate(blog.date);
     setNewBlogStatus(blog.status as "Published" | "Draft");
     setNewBlogContent(blog.content);
-    setEditingBlogId(blog.id.toString()); // Explicitly convert to string
+    setEditingBlogId(blog.id.toString());
     toast({
       title: "Editing blog",
       description: `Now editing "${blog.title}"`,
@@ -226,11 +217,8 @@ const Admin = () => {
     });
   };
 
-  // User management handlers
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would call an API to add a user
-    // For now we'll just update the local state
     const newUser = {
       id: Date.now().toString(),
       name: newUserName,
@@ -257,7 +245,6 @@ const Admin = () => {
     });
   };
 
-  // Settings handlers
   const handleSaveSettings = () => {
     updateSiteSettings({
       siteTitle,
@@ -277,14 +264,12 @@ const Admin = () => {
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
     
-    // Map section to tab if needed
     let tabValue = section;
     if (section === 'dashboard') tabValue = 'profile';
     if (section === 'appearance' || section === 'media' || section === 'videos' || section === 'projects') {
       tabValue = 'settings';
     }
     
-    // This will work if the sections align with the tab values
     const tabElement = document.querySelector(`[data-state="inactive"][data-value="${tabValue}"]`) as HTMLElement;
     if (tabElement) {
       tabElement.click();

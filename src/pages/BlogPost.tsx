@@ -1,11 +1,10 @@
-
 import React from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Tag } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import ParticleBackground from "@/components/ParticleBackground";
-import { useSiteData } from "@/context/SiteDataContext";
+import { useSiteData } from "@/contexts/SiteDataContext";
 
 const BlogPost = () => {
   const { id } = useParams<{ id: string }>();
