@@ -1,6 +1,6 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
+import { blogApi, mediaApi, projectApi, profileApi, settingsApi } from "@/services/api";
 
 // Define types for our site data
 export interface BlogPost {
@@ -257,27 +257,53 @@ const SiteDataContext = createContext<SiteDataContextType | undefined>(undefined
 
 // Provider component
 export const SiteDataProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-  // Initialize state with default data or from localStorage if available
-  const [siteData, setSiteData] = useState<SiteData>(() => {
-    const savedData = localStorage.getItem("siteData");
-    return savedData ? JSON.parse(savedData) : defaultSiteData;
-  });
+  const [siteData, setSiteData] = useState<SiteData>(defaultSiteData);
 
-  // Save to localStorage whenever data changes
+  // Load initial data
   useEffect(() => {
-    localStorage.setItem("siteData", JSON.stringify(siteData));
-  }, [siteData]);
+    const loadInitialData = async () => {
+      try {
+        const [
+          personalInfo,
+          blogPosts,
+          videos,
+          projects,
+          siteSettings
+        ] = await Promise.all([
+          profileApi.getPersonalInfo(),
+          blogApi.getAll(),
+          mediaApi.getAllVideos(),
+          projectApi.getAll(),
+          settingsApi.getSiteSettings()
+        ]);
 
-  // Update functions
-  const updatePersonalInfo = (info: PersonalInfo) => {
-    setSiteData(prev => ({
-      ...prev,
-      personalInfo: {
-        ...prev.personalInfo,
-        ...info
+        setSiteData(prev => ({
+          ...prev,
+          personalInfo: personalInfo.data?.data || prev.personalInfo,
+          blogPosts: blogPosts.data?.data || prev.blogPosts,
+          videos: videos.data?.data || prev.videos,
+          projects: projects.data?.data || prev.projects,
+          siteSettings: siteSettings.data?.data || prev.siteSettings,
+        }));
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        toast.error('Error loading data');
       }
-    }));
-    toast.success("Personal information updated");
+    };
+
+    loadInitialData();
+  }, []);
+
+  const updatePersonalInfo = async (info: PersonalInfo) => {
+    try {
+      const response = await profileApi.updatePersonalInfo(info);
+      if (response.data.success) {
+        setSiteData(prev => ({ ...prev, personalInfo: info }));
+        toast.success('Personal information updated');
+      }
+    } catch (error) {
+      toast.error('Error updating personal information');
+    }
   };
 
   const updateBlogPosts = (posts: BlogPost[]) => {
@@ -288,16 +314,19 @@ export const SiteDataProvider: React.FC<{children: ReactNode}> = ({ children }) 
     toast.success("Blog posts updated");
   };
 
-  const addBlogPost = (post: Omit<BlogPost, "id">) => {
-    const newId = Math.max(0, ...siteData.blogPosts.map(p => p.id)) + 1;
-    setSiteData(prev => ({
-      ...prev,
-      blogPosts: [
-        ...prev.blogPosts,
-        { ...post, id: newId }
-      ]
-    }));
-    toast.success("Blog post added");
+  const addBlogPost = async (post: Omit<BlogPost, "id">) => {
+    try {
+      const response = await blogApi.create(post);
+      if (response.data.success) {
+        setSiteData(prev => ({
+          ...prev,
+          blogPosts: [...prev.blogPosts, response.data.data!]
+        }));
+        toast.success('Blog post added');
+      }
+    } catch (error) {
+      toast.error('Error adding blog post');
+    }
   };
 
   const updateBlogPost = (id: number, post: Partial<BlogPost>) => {
